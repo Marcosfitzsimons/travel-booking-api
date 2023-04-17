@@ -40,7 +40,7 @@ export const getTrip = async (req, res) => {
         path: 'passengers',
         populate: {
             path: 'createdBy',
-            model: 'User'
+            select: '_id username fullName addressCda addressCapital phone image'
         }
     })
     if (!trip) throw new NotFoundError('Viaje no existe.')
