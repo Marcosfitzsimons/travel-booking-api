@@ -37,6 +37,7 @@ export const deleteTrip = async (req, res) => {
 export const getTrip = async (req, res) => {
 
     const trip = await Trip.findById(req.params.id)
+    console.log(req)
     if (!trip) throw new NotFoundError('Viaje no existe.')
     res.status(StatusCodes.OK).json(trip)
 
