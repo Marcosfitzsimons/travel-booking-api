@@ -82,7 +82,11 @@ export const getPassenger = async (req, res, next) => {
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
-        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone image email' }
+        populate: {
+            path: 'createdBy',
+            model: 'User',
+            select: '_id username fullName addressCda addressCapital phone image email'
+        }
     });
     const passenger = trip.passengers.find(passenger => passenger.createdBy == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
