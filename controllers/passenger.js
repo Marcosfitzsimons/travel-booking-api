@@ -76,10 +76,14 @@ export const deletePassenger = async (req, res, next) => {
 
 // works.
 export const getPassenger = async (req, res, next) => {
+    // populate the createdBy
     const tripId = req.params.tripid;
     const userId = req.params.id
 
-    const trip = await Trip.findById(tripId).populate('passengers');
+    const trip = await Trip.findById(tripId).populate({
+        path: 'passengers',
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone image email' }
+    });
     const passenger = trip.passengers.find(passenger => passenger.createdBy == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 

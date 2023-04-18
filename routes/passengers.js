@@ -4,6 +4,7 @@ import { verifyAdmin, verifyUser } from '../middleware/verifyToken.js'
 
 const router = express.Router();
 
+// id = passenger.createdBy._id
 // CREATE - OK
 router.post("/:id/:tripid", verifyUser, createPassenger)
 
