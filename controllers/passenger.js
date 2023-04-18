@@ -39,14 +39,26 @@ export const updatePassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
     const userId = req.params.id
 
-    const trip = await Trip.findById(tripId).populate('passengers');
-    const passenger = trip.passengers.find(passenger => passenger.createdBy == userId)
+    const trip = await Trip.findById(tripId).populate({
+        path: 'passengers',
+        populate: {
+            path: 'createdBy',
+            model: 'User',
+            select: '_id username fullName addressCda addressCapital phone image email'
+        }
+    });
+    const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
-    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true })
-    const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy) === String(userId));
+    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true }).populate({
+        path: 'createdBy',
+        model: 'User',
+        select: '_id username fullName addressCda addressCapital phone image email'
+    })
+    const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
 
-    trip.passengers[passengerIndex] = updatedPassenger;
+    trip.passengers[passengerIndex] = updatedPassenger
+    console.log(updatedPassenger)
     await trip.save();
     res.status(StatusCodes.OK).json({ updatedPassenger });
 
