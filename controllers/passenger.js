@@ -88,7 +88,7 @@ export const getPassenger = async (req, res, next) => {
             select: '_id username fullName addressCda addressCapital phone image email'
         }
     });
-    const passenger = trip.passengers.find(passenger => passenger.createdBy == userId)
+    const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
     res.status(StatusCodes.OK).json({ passenger })
