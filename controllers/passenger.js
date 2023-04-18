@@ -72,7 +72,7 @@ export const deletePassenger = async (req, res, next) => {
 
     const trip = await Trip.findById(tripId).populate('passengers');
 
-    const passenger = trip.passengers.find(passenger => passenger.createdBy == userId)
+    const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
     await Passenger.findByIdAndDelete(passenger._id)
 
