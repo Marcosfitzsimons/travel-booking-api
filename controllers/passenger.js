@@ -39,6 +39,8 @@ export const updatePassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
     const userId = req.params.id
 
+    const updatedUser = await User.findByIdAndUpdate(userId, { $set: req.body }, { new: true });
+
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: {
