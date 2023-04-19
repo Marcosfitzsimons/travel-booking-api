@@ -7,7 +7,11 @@ import User from '../models/User.js';
 
 
 export const createPassenger = async (req, res, next) => {
-    req.body.createdBy = req.user.id
+    if (!req.user.isAdmin) {
+        req.body.createdBy = req.user.id
+    } else {
+        req.body.createdBy = req.params.id
+    }
 
     const tripId = req.params.tripid;
     const newPassenger = new Passenger(req.body)
@@ -15,7 +19,7 @@ export const createPassenger = async (req, res, next) => {
     const savedPassenger = await newPassenger.save()
     const trip = await Trip.findById(tripId).populate('passengers');
 
-    const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.user.id)
+    const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.params.id)
     if (isCreated) throw new BadRequestError('Usuario ya tiene boleto para este viaje.')
 
     // Push the trip to user's myTrips array
