@@ -6,8 +6,9 @@ import { createError } from '../utils/error.js'
 export const verifyToken = async (req, res, next) => {
 
     const authHeader = req.headers.authorization;
+    if (!authHeader || !token) throw new UnauthenticatedError('No estas autorizado, no token provided.')
     const token = authHeader.split(' ')[1]
-    if (!token) throw new UnauthenticatedError('No estas autorizado, no token provided.')
+
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
         const decoded = jwt.verify(token, process.env.JWT)
