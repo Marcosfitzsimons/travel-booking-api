@@ -6,7 +6,7 @@ import { createError } from '../utils/error.js'
 export const verifyToken = async (req, res, next) => {
 
     const authHeader = req.headers.authorization;
-    if (!authHeader) throw new UnauthenticatedError('No estas autorizado, no token provided.')
+    if (!authHeader) throw new UnauthenticatedError('No token provided.')
     const token = authHeader.split(' ')[1]
 
 
