@@ -1,11 +1,11 @@
-import { format, parse } from "date-fns";
+import { format, parse, parseISO } from "date-fns";
 import { StatusCodes } from 'http-status-codes';
 import { NotFoundError } from '../errors/index.js'
 import Trip from "../models/Trip.js"
 
 export const createTrip = async (req, res) => {
-    const date = parse(req.body.date, "dd/MM/yyyy", new Date());
-    console.log(date)
+    const parseDate = parseISO(req.body.date);
+    const date = format(parseDate, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
     const newTrip = new Trip({
         ...req.body,
         date: date
@@ -57,7 +57,6 @@ export const getTrips = async (req, res) => {
     // const filteredMyTrips = user.myTrips.filter(trip => new Date(trip.date) >= formattedCurrentDate)
     // console.log(filteredMyTrips)
 
-    console.log(currentDate)
     const trips = await Trip.find({ date: { $gte: currentDate } }).sort('date')
 
     res.status(StatusCodes.OK).json(trips)
