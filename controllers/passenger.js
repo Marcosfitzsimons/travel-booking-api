@@ -7,11 +7,9 @@ import User from '../models/User.js';
 
 
 export const createPassenger = async (req, res, next) => {
-    if (!req.user.isAdmin) {
-        req.body.createdBy = req.user.id
-    } else {
-        req.body.createdBy = req.params.id
-    }
+
+    req.body.createdBy = req.params.id
+
 
     const tripId = req.params.tripid;
     const newPassenger = new Passenger(req.body)
@@ -24,7 +22,7 @@ export const createPassenger = async (req, res, next) => {
 
     // Push the trip to user's myTrips array
 
-    await User.findByIdAndUpdate(req.user.id, {
+    await User.findByIdAndUpdate(req.params.id, {
         $push: { myTrips: tripId },
     });
 
