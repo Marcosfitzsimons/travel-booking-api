@@ -18,7 +18,7 @@ export const createPassenger = async (req, res, next) => {
     const trip = await Trip.findById(tripId).populate('passengers');
 
     const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.params.id)
-    if (isCreated) throw new BadRequestError('Usuario ya tiene boleto para este viaje.')
+    if (isCreated) throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
 
     // Push the trip to user's myTrips array
 
