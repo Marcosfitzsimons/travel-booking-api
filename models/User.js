@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: [true, 'Por favor, escribí tu username.'],
+        required: [true, 'Por favor, ingresar username.'],
         minLength: 3,
         maxLength: 15,
         trim: true,
@@ -13,11 +13,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         minLength: 3,
         maxLength: 25,
-        required: [true, 'Por favor, escribí tu nombre completo.']
+        required: [true, 'Por favor, ingresar nombre completo.']
     },
     email: {
         type: String,
-        required: [true, 'Por favor, escribí tu email.'],
+        required: [true, 'Por favor, ingresar email.'],
         minLength: 3,
         maxLength: 40,
         trim: true,
@@ -26,22 +26,28 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, 'Por favor, escribí tu contraseña.'],
+        required: [true, 'Por favor, ingresar contraseña.'],
         minLength: 3,
         trim: true,
     },
     addressCda: {
         type: String,
-        required: [true, 'Por favor, escribí tu dirreción (Carmen de Areco).'],
+        required: [true, 'Por favor, ingresar dirreción (Carmen de Areco).'],
         minLength: 3,
         maxLength: 40,
     },
     phone: {
         type: Number,
-        required: [true, 'Por favor, escribí tu número celular.'],
+        required: [true, 'Por favor, ingresar número celular.'],
     },
+    dni: {
+        type: Number,
+        required: [true, 'Por favor, ingresar DNI.'],
+    },
+    // O dirrección en donde bajas.
     addressCapital: {
         type: String,
+        required: [true, 'Por favor, ingresar dirreción (Capital).'],
         minLength: 3,
         maxLength: 40,
     },
@@ -52,10 +58,14 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    isPlusUser: {
+        type: Boolean,
+        default: false,
+    },
     myTrips: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trip'
-    }]
+    }],
 },
     { timestamps: true }
 );
