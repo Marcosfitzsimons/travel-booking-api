@@ -5,9 +5,9 @@ import jwt from 'jsonwebtoken'
 import User from "../models/User.js"
 
 export const register = async (req, res, next) => {
-    const { fullName, username, email, password, addressCda, phone } = req.body
+    const { fullName, username, email, password, addressCda, adressCapital, phone, dni } = req.body
 
-    if (!fullName || !email || !username || !password || !addressCda || !phone) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.')
+    if (!fullName || !email || !username || !password || !addressCda || !adressCapital || !phone || !dni) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.')
 
     const emailExists = await User.findOne({ email })
     if (emailExists) throw new BadRequestError('Email ya está en uso.')
@@ -27,7 +27,7 @@ export const register = async (req, res, next) => {
     await user.save()
 
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, { expiresIn: process.env.JWT_LIFETIME })
-    const { password: userPassword, isAdmin, ...otherDetails } = user._doc
+    const { password: userPassword, isAdmin, isPlus, ...otherDetails } = user._doc
 
     res.status(StatusCodes.CREATED).json({
         details: { ...otherDetails },
@@ -50,7 +50,7 @@ export const login = async (req, res, next) => {
 
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, { expiresIn: process.env.JWT_LIFETIME })
 
-    const { password, isAdmin, ...otherDetails } = user._doc
+    const { password, isAdmin, isPlus, ...otherDetails } = user._doc
 
     res.status(StatusCodes.CREATED).json({
         details: { ...otherDetails },
