@@ -44,7 +44,6 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Por favor, ingresar DNI.'],
     },
-    // O dirrección en donde bajas.
     addressCapital: {
         type: String,
         required: [true, 'Por favor, ingresar dirreción (Capital).'],
