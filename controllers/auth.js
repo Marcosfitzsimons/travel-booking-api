@@ -5,9 +5,9 @@ import jwt from 'jsonwebtoken'
 import User from "../models/User.js"
 
 export const register = async (req, res, next) => {
-    const { fullName, username, email, password, addressCda, adressCapital, phone, dni } = req.body
-
-    if (!fullName || !email || !username || !password || !addressCda || !adressCapital || !phone || !dni) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.')
+    const { fullName, username, email, password, addressCda, addressCapital, phone, dni } = req.body
+    console.log(req.body)
+    if (!fullName || !email || !username || !password || !addressCda || !addressCapital || !phone || !dni) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.')
 
     const emailExists = await User.findOne({ email })
     if (emailExists) throw new BadRequestError('Email ya está en uso.')
