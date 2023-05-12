@@ -48,7 +48,7 @@ export const updatePassenger = async (req, res, next) => {
         populate: {
             path: 'createdBy',
             model: 'User',
-            select: '_id username fullName addressCda addressCapital phone image email'
+            select: '_id username fullName addressCda addressCapital phone dni image email'
         }
     });
     const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
@@ -57,7 +57,7 @@ export const updatePassenger = async (req, res, next) => {
     const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true }).populate({
         path: 'createdBy',
         model: 'User',
-        select: '_id username fullName addressCda addressCapital phone image email'
+        select: '_id username fullName addressCda addressCapital phone dni image email'
     })
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
 
@@ -90,9 +90,7 @@ export const deletePassenger = async (req, res, next) => {
 
 }
 
-// works.
 export const getPassenger = async (req, res, next) => {
-    // populate the createdBy
     const tripId = req.params.tripid;
     const userId = req.params.id
 
@@ -101,7 +99,7 @@ export const getPassenger = async (req, res, next) => {
         populate: {
             path: 'createdBy',
             model: 'User',
-            select: '_id username fullName addressCda addressCapital phone image email'
+            select: '_id username fullName addressCda addressCapital phone dni image email'
         }
     });
     const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
@@ -116,7 +114,7 @@ export const getPassengers = async (req, res, next) => {
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
-        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone image email' }
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' }
     });
 
     res.status(StatusCodes.OK).json({ passengers: trip.passengers })
