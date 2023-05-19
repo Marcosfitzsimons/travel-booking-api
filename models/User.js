@@ -61,7 +61,7 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    isRecordatory: {
+    isReminder: {
         type: Boolean,
         default: false,
     },
