@@ -61,6 +61,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    isRecordatory: {
+        type: Boolean,
+        default: false,
+    },
     myTrips: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trip'
