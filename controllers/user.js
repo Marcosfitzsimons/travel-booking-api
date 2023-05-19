@@ -58,7 +58,7 @@ export const getUser = async (req, res) => {
             addressCapital: user.addressCapital,
             phone: user.phone,
             dni: user.dni,
-            isReminder: user.isRecordatory,
+            isReminder: user.isReminder,
             myTrips: filteredUserTrips,
             image: user.image
         }
