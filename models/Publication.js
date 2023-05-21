@@ -17,4 +17,4 @@ const PublicationSchema = new mongoose.Schema({
     },
 }, { timestamps: true })
 
-export default mongoose.model('Trip', PublicationSchema)
+export default mongoose.model('Publication', PublicationSchema)

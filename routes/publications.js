@@ -1,5 +1,5 @@
 import express from "express";
-import { deletePublication, getPublication, getPublications, updatePublication, createPublication } from "../controllers/user.js";
+import { deletePublication, getPublication, getPublications, updatePublication, createPublication } from "../controllers/publication.js";
 import { verifyAdmin } from "../middleware/verifyToken.js";
 
 const router = express.Router();
