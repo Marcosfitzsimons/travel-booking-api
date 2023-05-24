@@ -21,10 +21,6 @@ const SpecialTripSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Ingresa horario de salida del viaje.']
     },
-    arrivalTime: {
-        type: String,
-        required: [true, 'Ingresa horario de llegada del viaje.']
-    },
     price: {
         type: Number,
         required: [true, 'Ingresa precio del viaje.']
