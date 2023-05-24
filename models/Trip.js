@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Passenger from "./Passenger.js";
 
 const TripSchema = new mongoose.Schema({
     name: {
