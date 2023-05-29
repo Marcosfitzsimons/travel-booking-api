@@ -37,7 +37,7 @@ export const deleteSpecialTrip = async (req, res) => {
 
 export const getSpecialTrip = async (req, res) => {
 
-    const specialTrip = await SpecialTrip.findById(req.params.id)
+    const specialTrip = await SpecialTrip.findById(req.params.id).populate("passengers")
     if (!specialTrip) throw new NotFoundError('Viaje no existe.')
     res.status(StatusCodes.OK).json(specialTrip)
 
