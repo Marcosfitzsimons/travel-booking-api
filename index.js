@@ -10,6 +10,7 @@ import authRoute from './routes/auth.js'
 import usersRoute from './routes/users.js'
 import tripsRoute from './routes/trips.js'
 import specialTripsRoute from './routes/specialtrips.js'
+import specialPassengersRoute from './routes/specialpassengers.js'
 import passengersRoute from './routes/passengers.js'
 import publicationsRoute from './routes/publications.js'
 import connectDB from './db/connect.js'
@@ -39,8 +40,9 @@ app.use(cors({
 app.use("/api/auth", authRoute)
 app.use("/api/users", usersRoute)
 app.use("/api/trips", tripsRoute)
-app.use("/api/special-trips", specialTripsRoute)
 app.use("/api/passengers", passengersRoute)
+app.use("/api/special-trips", specialTripsRoute)
+app.use("/api/special-passengers", specialPassengersRoute)
 app.use("/api/publications", publicationsRoute)
 
 app.use(notFoundMiddleware);
