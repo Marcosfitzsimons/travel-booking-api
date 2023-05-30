@@ -2,7 +2,6 @@ import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, NotFoundError } from '../errors/index.js'
 import SpecialPassenger from '../models/SpecialPassenger.js'
 import SpecialTrip from '../models/SpecialTrip.js'
-import User from '../models/User.js';
 
 export const createSpecialPassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
