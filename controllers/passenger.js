@@ -8,32 +8,49 @@ import User from '../models/User.js';
 
 export const createPassenger = async (req, res, next) => {
 
-    req.body.createdBy = req.params.id
-
-
     const tripId = req.params.tripid;
+
+    if (!req.user.isAdmin) {
+
+        req.body.createdBy = req.params.id
+
+        const newPassenger = new Passenger(req.body)
+        const savedPassenger = await newPassenger.save()
+
+        const trip = await Trip.findById(tripId).populate('passengers');
+
+        const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.params.id)
+        if (isCreated) throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
+
+        // Push the trip to user's myTrips array
+
+        await User.findByIdAndUpdate(req.params.id, {
+            $push: { myTrips: tripId },
+        });
+
+        try {
+            await Trip.findByIdAndUpdate(tripId, {
+                $push: { passengers: savedPassenger },
+            })
+        } catch (err) {
+            next(err)
+        }
+
+        res.status(StatusCodes.OK).json({ savedPassenger })
+
+    }
+
     const newPassenger = new Passenger(req.body)
-
     const savedPassenger = await newPassenger.save()
-    const trip = await Trip.findById(tripId).populate('passengers');
-
-    const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.params.id)
-    if (isCreated) throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
-
-    // Push the trip to user's myTrips array
-
-    await User.findByIdAndUpdate(req.params.id, {
-        $push: { myTrips: tripId },
-    });
 
     try {
         await Trip.findByIdAndUpdate(tripId, {
             $push: { passengers: savedPassenger },
         })
-
     } catch (err) {
         next(err)
     }
+
     res.status(StatusCodes.OK).json({ savedPassenger })
 }
 
