@@ -1,5 +1,4 @@
 import { format, parse, parseISO } from "date-fns";
-import cron from 'node-cron';
 import { StatusCodes } from 'http-status-codes';
 import { NotFoundError } from '../errors/index.js'
 import Trip from "../models/Trip.js"
@@ -43,7 +42,8 @@ export const getTrip = async (req, res) => {
         populate: {
             path: 'createdBy',
             select: '_id username fullName addressCda addressCapital dni phone image email'
-        }
+        },
+        select: 'fullName dni'
     })
     if (!trip) throw new NotFoundError('Viaje no existe.')
     res.status(StatusCodes.OK).json(trip)

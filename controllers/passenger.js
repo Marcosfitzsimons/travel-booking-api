@@ -126,12 +126,15 @@ export const getPassenger = async (req, res, next) => {
 
 }
 
+// Here is the problem. with the data populated
+// I need to populate passengers correctly.
 export const getPassengers = async (req, res, next) => {
     const tripId = req.params.tripid;
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
-        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' }
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+        select: 'fullName dni'
     });
 
     res.status(StatusCodes.OK).json({ passengers: trip.passengers })
