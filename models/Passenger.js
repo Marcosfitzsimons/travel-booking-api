@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 
 const PassengerSchema = new mongoose.Schema({
+    fullName: {
+        type: String,
+        minLength: 3,
+        maxLength: 25,
+    },
+    dni: {
+        type: Number,
+    },
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
