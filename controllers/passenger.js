@@ -46,8 +46,6 @@ export const createPassenger = async (req, res, next) => {
 
     const newPassenger = new Passenger(req.body)
     const savedPassenger = await newPassenger.save()
-    console.log(savedPassenger)
-    const passengerID = savedPassenger._id
 
     try {
         await Trip.findByIdAndUpdate(tripId, {
