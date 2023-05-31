@@ -17,7 +17,11 @@ export const createPassenger = async (req, res, next) => {
         const newPassenger = new Passenger(req.body)
         const savedPassenger = await newPassenger.save()
 
-        const trip = await Trip.findById(tripId).populate('passengers');
+        const trip = await Trip.findById(tripId).populate({
+            path: 'passengers',
+            populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+            select: 'fullName dni'
+        });
 
         const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.params.id)
         if (isCreated) throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
@@ -62,20 +66,17 @@ export const updatePassenger = async (req, res, next) => {
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
-        populate: {
-            path: 'createdBy',
-            model: 'User',
-            select: '_id username fullName addressCda addressCapital phone dni image email'
-        }
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+        select: 'fullName dni'
     });
     const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
     const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true }).populate({
-        path: 'createdBy',
-        model: 'User',
-        select: '_id username fullName addressCda addressCapital phone dni image email'
-    })
+        path: 'passengers',
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+        select: 'fullName dni'
+    });
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
 
     trip.passengers[passengerIndex] = updatedPassenger
@@ -85,23 +86,44 @@ export const updatePassenger = async (req, res, next) => {
 
 }
 
+
 export const deletePassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
-    const userId = req.params.id
 
-    const trip = await Trip.findById(tripId).populate('passengers');
+    const trip = await Trip.findById(tripId).populate({
+        path: 'passengers',
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+        select: 'fullName dni'
+    });
 
-    const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
+    if (!req.user.isAdmin) {
+        const userId = req.params.id
+
+        const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
+        if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
+
+        await Passenger.findByIdAndDelete(passenger._id)
+        trip.passengers.pull(passenger._id);
+
+        await trip.save();
+
+        const user = await User.findById(userId).populate('myTrips');
+        const userTrip = user.myTrips.find(userTrip => userTrip._id == tripId)
+        user.myTrips.pull(userTrip._id)
+        await user.save();
+
+        res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
+
+
+    }
+
+    const passenger = trip.passengers.find(passenger => passenger._id == req.params.id)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
+
     await Passenger.findByIdAndDelete(passenger._id)
-
     trip.passengers.pull(passenger._id);
-    await trip.save();
 
-    const user = await User.findById(userId).populate('myTrips');
-    const userTrip = user.myTrips.find(userTrip => userTrip._id == tripId)
-    user.myTrips.pull(userTrip._id)
-    await user.save();
+    await trip.save();
 
     res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
 
@@ -113,11 +135,8 @@ export const getPassenger = async (req, res, next) => {
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
-        populate: {
-            path: 'createdBy',
-            model: 'User',
-            select: '_id username fullName addressCda addressCapital phone dni image email'
-        }
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+        select: 'fullName dni'
     });
     const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
