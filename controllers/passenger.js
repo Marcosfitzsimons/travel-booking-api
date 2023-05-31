@@ -23,7 +23,7 @@ export const createPassenger = async (req, res, next) => {
             select: 'fullName dni'
         });
 
-        const isCreated = trip.passengers.find(passenger => passenger.createdBy == req.params.id)
+        const isCreated = trip.passengers.find(passenger => passenger.createdBy._id == req.params.id)
         if (isCreated) throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
 
         // Push the trip to user's myTrips array
@@ -46,6 +46,8 @@ export const createPassenger = async (req, res, next) => {
 
     const newPassenger = new Passenger(req.body)
     const savedPassenger = await newPassenger.save()
+    console.log(savedPassenger)
+    const passengerID = savedPassenger._id
 
     try {
         await Trip.findByIdAndUpdate(tripId, {
@@ -102,8 +104,8 @@ export const deletePassenger = async (req, res, next) => {
         const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
         if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
-        await Passenger.findByIdAndDelete(passenger._id)
-        trip.passengers.pull(passenger._id);
+        await Passenger.findByIdAndDelete(passenger.createdBy._id)
+        trip.passengers.pull(passenger.createdBy._id);
 
         await trip.save();
 
