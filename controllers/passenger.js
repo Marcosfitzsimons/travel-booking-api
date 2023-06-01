@@ -10,42 +10,73 @@ export const createPassenger = async (req, res, next) => {
 
     const tripId = req.params.tripid;
 
-    if (!req.user.isAdmin) {
+    const { fullName, dni, userId } = req.body;
 
-        req.body.createdBy = req.params.id
+    const trip = await Trip.findById(tripId).populate({
+        path: 'passengers',
+        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
+        select: 'fullName dni'
+    });
 
-        const newPassenger = new Passenger(req.body)
-        const savedPassenger = await newPassenger.save()
+    if (req.user.isAdmin) {
+        if (!fullName && !dni && !userId) {
+            const newPassenger = new Passenger({});
+            const savedPassenger = await newPassenger.save();
 
-        const trip = await Trip.findById(tripId).populate({
-            path: 'passengers',
-            populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-            select: 'fullName dni'
-        });
-
-        const isCreated = trip.passengers.find(passenger => passenger.createdBy._id == req.params.id)
-        if (isCreated) throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
-
-        // Push the trip to user's myTrips array
-
-        await User.findByIdAndUpdate(req.params.id, {
-            $push: { myTrips: tripId },
-        });
-
-        try {
             await Trip.findByIdAndUpdate(tripId, {
-                $push: { passengers: savedPassenger },
-            })
-        } catch (err) {
-            next(err)
+                $push: { passengers: savedPassenger }
+            });
+
+            return res.status(StatusCodes.OK).json({ savedPassenger });
+        } else if ((fullName && dni || fullName) && !userId) {
+            // Handle case of partial passenger
+            const newPassenger = new Passenger({ fullName, dni });
+            const savedPassenger = await newPassenger.save();
+
+            await Trip.findByIdAndUpdate(tripId, {
+                $push: { passengers: savedPassenger }
+            });
+
+            return res.status(StatusCodes.OK).json({ savedPassenger });
+        } else if (!fullName && !dni && userId) {
+            // Handle case of user passenger
+            const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
+            if (existingPassenger) {
+                throw new BadRequestError('Ey! Usuario ya tiene boleto para este viaje.')
+            }
+
+            const newPassenger = new Passenger({ createdBy: userId });
+            const savedPassenger = await newPassenger.save();
+
+            await User.findByIdAndUpdate(userId, {
+                $push: { myTrips: tripId },
+            });
+
+            await Trip.findByIdAndUpdate(tripId, {
+                $push: { passengers: savedPassenger }
+            });
+
+            return res.status(StatusCodes.OK).json({ savedPassenger });
+        } else {
+            throw new BadRequestError('Invalid passenger information.');
         }
-
-        res.status(StatusCodes.OK).json({ savedPassenger })
-
     }
 
-    const newPassenger = new Passenger(req.body)
-    const savedPassenger = await newPassenger.save()
+    req.body.createdBy = req.params.id
+
+    const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
+    if (existingPassenger) {
+        throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
+    }
+
+    const newPassenger = new Passenger({ createdBy: userId });
+    const savedPassenger = await newPassenger.save();
+
+    // Push the trip to user's myTrips array
+
+    await User.findByIdAndUpdate(userId, {
+        $push: { myTrips: tripId },
+    });
 
     try {
         await Trip.findByIdAndUpdate(tripId, {
@@ -56,6 +87,7 @@ export const createPassenger = async (req, res, next) => {
     }
 
     res.status(StatusCodes.OK).json({ savedPassenger })
+
 }
 
 export const updatePassenger = async (req, res, next) => {
