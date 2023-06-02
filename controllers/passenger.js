@@ -171,15 +171,13 @@ export const getPassenger = async (req, res, next) => {
         select: 'fullName dni'
     });
 
-    const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
+    const passenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
     res.status(StatusCodes.OK).json({ passenger })
 
 }
 
-// Here is the problem. with the data populated
-// I need to populate passengers correctly.
 export const getPassengers = async (req, res, next) => {
     const tripId = req.params.tripid;
 
