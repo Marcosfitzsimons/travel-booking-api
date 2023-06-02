@@ -9,6 +9,12 @@ const PassengerSchema = new mongoose.Schema({
     dni: {
         type: Number,
     },
+    addressCda: {
+        type: String,
+    },
+    addressCapital: {
+        type: String,
+    },
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
