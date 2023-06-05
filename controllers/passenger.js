@@ -99,7 +99,7 @@ export const updatePassenger = async (req, res, next) => {
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     });
     const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
@@ -107,7 +107,7 @@ export const updatePassenger = async (req, res, next) => {
     const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true }).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     });
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
 
@@ -120,12 +120,14 @@ export const updatePassenger = async (req, res, next) => {
 
 
 export const deletePassenger = async (req, res, next) => {
+
     const tripId = req.params.tripid;
+    const userId = req.params.id
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     });
 
     if (!req.user.isAdmin) {
@@ -149,7 +151,7 @@ export const deletePassenger = async (req, res, next) => {
 
     }
 
-    const passenger = trip.passengers.find(passenger => passenger._id == req.params.id)
+    const passenger = trip.passengers.find(passenger => String(passenger._id) === String(userId))
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
     await Passenger.findByIdAndDelete(passenger._id)
@@ -168,7 +170,7 @@ export const getPassenger = async (req, res, next) => {
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     });
 
     const passenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId)
@@ -184,7 +186,7 @@ export const getPassengers = async (req, res, next) => {
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     });
 
     res.status(StatusCodes.OK).json({ passengers: trip.passengers })
