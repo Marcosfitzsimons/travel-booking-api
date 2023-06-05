@@ -43,7 +43,7 @@ export const getTrip = async (req, res) => {
             path: 'createdBy',
             select: '_id username fullName addressCda addressCapital dni phone image email'
         },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     })
     if (!trip) throw new NotFoundError('Viaje no existe.')
     res.status(StatusCodes.OK).json(trip)
