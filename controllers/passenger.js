@@ -10,16 +10,16 @@ export const createPassenger = async (req, res, next) => {
 
     const tripId = req.params.tripid;
 
-    const { fullName, dni, userId } = req.body;
+    const { fullName, dni, addressCda, addressCapital, userId } = req.body;
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni'
+        select: 'fullName dni addressCda addressCapital'
     });
 
     if (req.user.isAdmin) {
-        if (!fullName && !dni && !userId) {
+        if (!fullName && !dni && !addressCda && !addressCapital && !userId) {
             const newPassenger = new Passenger({});
             const savedPassenger = await newPassenger.save();
 
@@ -28,9 +28,9 @@ export const createPassenger = async (req, res, next) => {
             });
 
             return res.status(StatusCodes.OK).json({ savedPassenger });
-        } else if ((fullName && dni || fullName) && !userId) {
+        } else if (fullName || dni || addressCda || addressCapital && !userId) {
             // Handle case of partial passenger
-            const newPassenger = new Passenger({ fullName, dni });
+            const newPassenger = new Passenger({ fullName, dni, addressCda, addressCapital });
             const savedPassenger = await newPassenger.save();
 
             await Trip.findByIdAndUpdate(tripId, {
@@ -38,7 +38,7 @@ export const createPassenger = async (req, res, next) => {
             });
 
             return res.status(StatusCodes.OK).json({ savedPassenger });
-        } else if (!fullName && !dni && userId) {
+        } else if (!fullName && !dni && !addressCda && !addressCapital && userId) {
             // Handle case of user passenger
             const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
             if (existingPassenger) {
