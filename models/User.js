@@ -39,19 +39,19 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Por favor, ingresar DNI.'],
     },
     addressCda: {
-        streetCda: {
+        street: {
             type: String,
             required: [true, 'Por favor, ingresar calle.'],
             minLength: [3, 'La calle debe tener al menos 3 caracteres.'],
             maxLength: [40, 'La calle no debe exceder los 40 caracteres.'],
         },
-        streetNumberCda: {
+        streetNumber: {
             type: Number,
             required: [true, 'Por favor, ingresar número de calle.'],
             min: [1, 'El número de calle debe ser mayor o igual a 1.'],
             max: [100000, 'El número de calle debe ser menor a 100000.'],
         },
-        crossStreetsCda: {
+        crossStreets: {
             type: String,
             required: [true, 'Por favor, ingresar las calles que cruzan.'],
             minLength: [3, 'Las calles que cruzan deben tener al menos 3 caracteres.'],
