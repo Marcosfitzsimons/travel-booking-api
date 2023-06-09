@@ -31,7 +31,6 @@ export const deleteUser = async (req, res) => {
 export const getUser = async (req, res) => {
 
     const user = await User.findById(req.params.id).populate('myTrips');
-    console.log(user._id)
     if (!user) throw new NotFoundError('Usuario no existe.')
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());

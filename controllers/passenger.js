@@ -101,14 +101,11 @@ export const updatePassenger = async (req, res, next) => {
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
         select: 'fullName dni addressCda addressCapital'
     });
-    const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
+    const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
-    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true }).populate({
-        path: 'passengers',
-        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni addressCda addressCapital'
-    });
+    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: { createdBy: req.body } }, { new: true })
+
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
 
     trip.passengers[passengerIndex] = updatedPassenger
