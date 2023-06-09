@@ -30,12 +30,6 @@ const UserSchema = new mongoose.Schema({
         minLength: 3,
         trim: true,
     },
-    addressCda: {
-        type: String,
-        required: [true, 'Por favor, ingresar dirreción (Carmen de Areco).'],
-        minLength: 3,
-        maxLength: 40,
-    },
     phone: {
         type: Number,
         required: [true, 'Por favor, ingresar número celular.'],
@@ -44,11 +38,30 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'Por favor, ingresar DNI.'],
     },
+    addressCda: {
+        streetCda: {
+            type: String,
+            required: [true, 'Por favor, ingresar calle.'],
+            minLength: [3, 'La calle debe tener al menos 3 caracteres.'],
+            maxLength: [40, 'La calle no debe exceder los 40 caracteres.'],
+        },
+        streetNumberCda: {
+            type: Number,
+            required: [true, 'Por favor, ingresar número de calle.'],
+            min: [1, 'El número de calle debe ser mayor o igual a 1.'],
+            max: [100000, 'El número de calle debe ser menor a 100000.'],
+        },
+        crossStreetsCda: {
+            type: String,
+            required: [true, 'Por favor, ingresar las calles que cruzan.'],
+            minLength: [3, 'Las calles que cruzan deben tener al menos 3 caracteres.'],
+            maxLength: [50, 'Las calles que cruzan no deben exceder los 50 caracteres.'],
+        }
+    },
     addressCapital: {
         type: String,
         required: [true, 'Por favor, ingresar dirreción (Capital).'],
-        minLength: 3,
-        maxLength: 40,
+        minLength: [3, 'La dirección debe tener al menos 3 caracteres.'],
     },
     image: {
         type: String,
