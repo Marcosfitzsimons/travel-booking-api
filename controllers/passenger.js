@@ -139,7 +139,7 @@ export const deletePassenger = async (req, res, next) => {
         await trip.save();
 
         const user = await User.findById(userId).populate('myTrips');
-        const userTrip = user.myTrips.find(userTrip => userTrip._id == tripId)
+        const userTrip = user.myTrips.find(userTrip => String(userTrip._id) === String(tripId))
         user.myTrips.pull(userTrip._id)
         await user.save();
 
