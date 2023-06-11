@@ -130,7 +130,7 @@ export const deletePassenger = async (req, res, next) => {
     if (!req.user.isAdmin) {
         const userId = req.params.id
 
-        const passenger = trip.passengers.find(passenger => passenger.createdBy._id == userId)
+        const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
         if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
         await Passenger.findByIdAndDelete(passenger.createdBy._id)
