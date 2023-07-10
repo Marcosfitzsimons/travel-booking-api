@@ -13,9 +13,12 @@ import specialTripsRoute from './routes/specialtrips.js'
 import specialPassengersRoute from './routes/specialpassengers.js'
 import passengersRoute from './routes/passengers.js'
 import publicationsRoute from './routes/publications.js'
+import paymentsRoute from './routes/payments.js'
 import connectDB from './db/connect.js'
 
 const app = express()
+
+// .env
 dotenv.config()
 
 // ignore warning
@@ -38,6 +41,7 @@ app.use(cors({
 */
 
 app.use("/api/auth", authRoute)
+app.use("/api/payments", paymentsRoute)
 app.use("/api/users", usersRoute)
 app.use("/api/trips", tripsRoute)
 app.use("/api/passengers", passengersRoute)

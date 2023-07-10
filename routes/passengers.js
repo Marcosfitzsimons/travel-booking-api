@@ -4,23 +4,22 @@ import { verifyAdmin, verifyUser } from '../middleware/verifyToken.js'
 
 const router = express.Router();
 
-// check again all routes with the new changes.
-// if (isAdmin) id = passenger_id
+// if (isAdmin) id = passenger._id
 // if (!isAdmin) id = passenger.createdBy._id
 
-// CREATE - OK
+// CREATE - WORKS - ADMIN/USER
 router.post("/:id/:tripid", verifyUser, createPassenger)
 
-// UPDATE - OK
+// UPDATE 
 router.put("/:id/:tripid", verifyAdmin, updatePassenger)
 
-// DELETE - OK
+// DELETE - WORKS - ADMIN/USER
 router.delete("/:id/:tripid", verifyUser, deletePassenger)
 
-// GET - OK
+// GET - WORKS
 router.get("/:id/:tripid", verifyUser, getPassenger)
 
-// GET ALL - OK
+// GET ALL - WORKS
 router.get("/:tripid", verifyAdmin, getPassengers)
 
 export default router;
