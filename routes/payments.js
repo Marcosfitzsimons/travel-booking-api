@@ -25,9 +25,10 @@ router.post("/", async (req, res, next) => {
     const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
     if (existingPassenger) {
         throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
+    } else {
+        PaymentInstance.getPaymentLink(req, res)
     }
 
-    PaymentInstance.getPaymentLink(req, res)
 })
 
 
