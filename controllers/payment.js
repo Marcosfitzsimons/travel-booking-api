@@ -5,9 +5,9 @@ class PaymentController {
 
     async getPaymentLink(req, res) {
         const trip = req.body.trip
-
+        const userId = req.body.userId
         try {
-            const payment = await this.subscriptionService.createPayment(trip); // Request single payments
+            const payment = await this.subscriptionService.createPayment(trip, userId); // Request single payments
 
             return res.json(payment);
         } catch (error) {

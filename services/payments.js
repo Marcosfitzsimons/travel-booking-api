@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 class PaymentService {
-    async createPayment(trip) {
+    async createPayment(trip, userId) {
         const url = "https://api.mercadopago.com/checkout/preferences";
 
         const body = {
@@ -18,7 +18,7 @@ class PaymentService {
             back_urls: {
                 failure: "http://localhost:5173/viajes",
                 pending: "http://localhost:5173/viajes",
-                success: "http://localhost:5173/payment-success"
+                success: `http://localhost:5173/payment-success/${userId}/${trip._id}`
             },
             auto_return: "approved",
             payment_methods: {

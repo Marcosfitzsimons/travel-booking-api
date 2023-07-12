@@ -27,8 +27,8 @@ router.post("/", async (req, res, next) => {
     if (existingPassenger) {
         throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
     }
-    PaymentInstance.getPaymentLink(req, res)
 
+    PaymentInstance.getPaymentLink(req, res)
 })
 
 
