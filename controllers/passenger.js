@@ -4,7 +4,8 @@ import Passenger from '../models/Passenger.js'
 import Trip from '../models/Trip.js'
 import User from '../models/User.js';
 
-
+// CHECK DELETE PASSENGER AND EACH CASE IN EACH ENDPOINT. 
+// TEST IN USER MODE AND ADMIN MODE.
 
 export const createPassenger = async (req, res, next) => {
 
@@ -134,8 +135,8 @@ export const deletePassenger = async (req, res, next) => {
         const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
         if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
-        await Passenger.findByIdAndDelete(passenger.createdBy._id)
-        trip.passengers.pull(passenger.createdBy._id);
+        await Passenger.findByIdAndDelete(passenger._id)
+        trip.passengers.pull(passenger._id);
 
         await trip.save();
 
