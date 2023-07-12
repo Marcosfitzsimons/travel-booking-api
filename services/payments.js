@@ -16,7 +16,7 @@ class PaymentService {
                 }
             ],
             back_urls: {
-                failure: "http://localhost:5173/viajes",
+                failure: "http://localhost:5173/payment-failure",
                 pending: "http://localhost:5173/viajes",
                 success: `http://localhost:5173/payment-success/${userId}/${trip._id}`
             },

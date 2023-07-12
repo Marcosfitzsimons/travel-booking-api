@@ -116,9 +116,6 @@ export const updatePassenger = async (req, res, next) => {
 
 }
 
-// Fix delete trip in passenger mytrips array. 
-// When I delete passenger, still in the trip passengers array. Fix that
-
 export const deletePassenger = async (req, res, next) => {
 
     const tripId = req.params.tripid;
