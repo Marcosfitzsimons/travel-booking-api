@@ -29,6 +29,10 @@ const PassengerSchema = new mongoose.Schema({
     addressCapital: {
         type: String,
     },
+    isPaid: {
+        type: Boolean,
+        default: false,
+    },
     createdBy: {
         type: mongoose.Types.ObjectId,
         ref: 'User',
