@@ -4,8 +4,6 @@ import Passenger from '../models/Passenger.js'
 import Trip from '../models/Trip.js'
 import User from '../models/User.js';
 
-// CHECK DELETE PASSENGER AND EACH CASE IN EACH ENDPOINT. 
-// TEST IN USER MODE AND ADMIN MODE.
 
 // user: ready
 // admin: ready
@@ -98,13 +96,12 @@ export const updatePassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
     const userId = req.params.id
 
-    const updatedUser = await User.findByIdAndUpdate(userId, { $set: req.body }, { new: true });
-
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni addressCda addressCapital'
+        select: 'fullName dni addressCda addressCapital isPaid'
     });
+
     const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
@@ -124,7 +121,7 @@ export const updatePassenger = async (req, res, next) => {
 export const deletePassenger = async (req, res, next) => {
 
     const tripId = req.params.tripid;
-    const { userId } = req.body
+    const userId = req.params.id
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
@@ -133,7 +130,6 @@ export const deletePassenger = async (req, res, next) => {
     });
 
     if (!req.user.isAdmin) {
-        const userId = req.params.id;
         const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
         if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
@@ -185,7 +181,7 @@ export const deletePassenger = async (req, res, next) => {
 }
 
 // user: ready
-// admin: ready but unused
+// admin: ready
 export const getPassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
 
