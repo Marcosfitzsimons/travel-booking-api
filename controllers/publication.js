@@ -42,7 +42,6 @@ export const getPublication = async (req, res) => {
 }
 
 export const getPublications = async (req, res) => {
-
     const publications = await Publication.find()
     if (!publications) throw new NotFoundError("No hay publicaciones disponibles por el momento.")
     res.status(StatusCodes.OK).json(publications)

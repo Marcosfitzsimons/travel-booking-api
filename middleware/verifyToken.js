@@ -19,13 +19,17 @@ export const verifyToken = async (req, res, next) => {
 
 export const verifyUser = (req, res, next) => {
     verifyToken(req, res, () => {
-        if (!req.params.id) {
-            return next(createError(400, "Missing id parameter"));
-        }
-        if (req.user.id === req.params.id || req.user.isAdmin) {
-            next();
+        if (req.params.id) {
+            // If the "id" parameter is present, perform the authorization check
+            if (req.user.id === req.params.id || req.user.isAdmin) {
+                next();
+            } else {
+                throw new UnauthenticatedError('No estas autorizado');
+            }
         } else {
-            throw new UnauthenticatedError('No estas autorizado')
+            // If the "id" parameter is not present, proceed without throwing an error
+            // Unauthenticated users can access the getPublications endpoint
+            next();
         }
     });
 };
