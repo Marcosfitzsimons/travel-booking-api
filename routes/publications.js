@@ -1,6 +1,6 @@
 import express from "express";
 import { deletePublication, getPublication, getPublications, updatePublication, createPublication } from "../controllers/publication.js";
-import { verifyAdmin } from "../middleware/verifyToken.js";
+import { verifyAdmin, verifyUser } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
@@ -17,6 +17,6 @@ router.delete("/:id", verifyAdmin, deletePublication)
 router.get("/:id", verifyAdmin, getPublication)
 
 // GET ALL
-router.get("/", verifyAdmin, getPublications)
+router.get("/", verifyUser, getPublications)
 
 export default router;
