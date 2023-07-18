@@ -17,6 +17,6 @@ router.delete("/:id", verifyAdmin, deletePublication)
 router.get("/:id", verifyAdmin, getPublication)
 
 // GET ALL
-router.get("/", verifyUser, getPublications)
+router.get("/", getPublications)
 
 export default router;
