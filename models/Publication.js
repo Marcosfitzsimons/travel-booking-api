@@ -10,7 +10,6 @@ const PublicationSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: [true, 'Ingresa la descripción de tu publicación']
     },
     image: {
         type: String,

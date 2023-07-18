@@ -82,6 +82,15 @@ const UserSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trip'
     }],
+    status: {
+        type: String,
+        enum: ['Pending', 'Active'],
+        default: 'Pending'
+    },
+    confirmationCode: {
+        type: String,
+        unique: true
+    }
 },
     { timestamps: true }
 );

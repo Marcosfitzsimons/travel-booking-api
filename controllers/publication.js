@@ -3,13 +3,12 @@ import { BadRequestError, NotFoundError } from '../errors/index.js'
 import Publication from "../models/Publication.js"
 
 export const createPublication = async (req, res) => {
-    const { title, description } = req.body
+    const { title } = req.body
 
     // req.body.createdAt must be in Argentina timezone
 
-    if (!title || !description) throw new BadRequestError("Tu publicación debe tener un título y una descripción.")
+    if (!title) throw new BadRequestError("Tu publicación debe tener al menos un título.")
     const newPublication = new Publication({ ...req.body })
-
     const savedPublication = await newPublication.save()
     console.log(savedPublication)
     res.status(StatusCodes.OK).json(savedPublication)
