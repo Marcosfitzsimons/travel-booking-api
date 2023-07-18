@@ -10,6 +10,7 @@ const transport = nodemailer.createTransport({
     auth: {
         user: user,
         pass: pass,
+        authMethod: 'PLAIN', // Specify PLAIN authentication method
     },
 });
 
