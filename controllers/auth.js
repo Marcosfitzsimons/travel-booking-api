@@ -47,7 +47,7 @@ export const register = async (req, res, next) => {
     });
 
     sendConfirmationEmail(
-        user.username,
+        user.fullName,
         user.email,
         user.confirmationCode
     );

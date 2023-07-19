@@ -15,15 +15,15 @@ const transport = nodemailer.createTransport({
 });
 
 const sendConfirmationEmail = (name, email, confirmationCode) => {
-    console.log("Check");
+    console.log("Sending mail with no problem...");
     transport.sendMail({
         from: user,
         to: email,
         subject: "Confirma tu cuenta por favor",
         html: `<h1>Confirmación por email</h1>
           <h2>Hello ${name}</h2>
-          <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
-          <a href=https://fabebuscda.com.ar/confirm/${confirmationCode}> Click here</a>
+          <p>Gracias por elegirnos. Por favor verifica tu cuenta haciendo click en el siguiente enlace:</p>
+          <a href=https://fabebuscda.com.ar/confirm/${confirmationCode}>Verificar cuenta</a>
           </div>`,
     }).catch(err => console.log(err));
 };
