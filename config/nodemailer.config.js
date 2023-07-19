@@ -21,8 +21,8 @@ const sendConfirmationEmail = (name, email, confirmationCode) => {
         to: email,
         subject: "Confirma tu cuenta por favor",
         html: `<h1>Confirmación por email</h1>
-          <h2>Hello ${name}</h2>
-          <p>Gracias por elegirnos. Por favor verifica tu cuenta haciendo click en el siguiente enlace:</p>
+          <h2>Hola ${name}</h2>
+          <p>Por favor, verifique su cuenta haciendo click en el siguiente enlace:</p>
           <a href=https://fabebuscda.com.ar/confirm/${confirmationCode}>Verificar cuenta</a>
           </div>`,
     }).catch(err => console.log(err));
