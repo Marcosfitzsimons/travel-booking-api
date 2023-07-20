@@ -36,18 +36,23 @@ export const deleteTrip = async (req, res) => {
 }
 
 export const getTrip = async (req, res) => {
+    if (req.user.isAdmin) {
+        const trip = await Trip.findById(req.params.id).populate({
+            path: 'passengers',
+            populate: {
+                path: 'createdBy',
+                select: '_id username fullName addressCda addressCapital dni phone image email'
+            },
+            select: 'fullName dni addressCda addressCapital'
+        })
+        if (!trip) throw new NotFoundError('Viaje no existe.')
+        res.status(StatusCodes.OK).json(trip)
 
-    const trip = await Trip.findById(req.params.id).populate({
-        path: 'passengers',
-        populate: {
-            path: 'createdBy',
-            select: '_id username fullName addressCda addressCapital dni phone image email'
-        },
-        select: 'fullName dni addressCda addressCapital'
-    })
-    if (!trip) throw new NotFoundError('Viaje no existe.')
-    res.status(StatusCodes.OK).json(trip)
-
+    } else {
+        const trip = await Trip.findById(req.params.id)
+        if (!trip) throw new NotFoundError('Viaje no existe.')
+        res.status(StatusCodes.OK).json(trip)
+    }
 }
 
 export const getTrips = async (req, res) => {
