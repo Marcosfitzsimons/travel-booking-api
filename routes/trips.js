@@ -8,13 +8,13 @@ const router = express.Router();
 router.post("/", verifyAdmin, createTrip)
 
 // UPDATE
-router.put("/:id", verifyUser, updateTrip)
+router.put("/:id", verifyAdmin, updateTrip)
 
 // DELETE
 router.delete("/:id", verifyAdmin, deleteTrip)
 
 // GET
-router.get("/:id", getTrip)
+router.get("/:userId/:tripId", getTrip)
 
 // GET ALL
 router.get("/", getTrips)
