@@ -2,6 +2,7 @@ import { format, parse, parseISO } from "date-fns";
 import { StatusCodes } from 'http-status-codes';
 import { NotFoundError } from '../errors/index.js'
 import Trip from "../models/Trip.js"
+import User from "../models/User.js"
 
 export const createTrip = async (req, res) => {
     const newDate = new Date(req.body.date);
@@ -36,23 +37,31 @@ export const deleteTrip = async (req, res) => {
 }
 
 export const getTrip = async (req, res) => {
-    if (req.user.isAdmin) {
-        const trip = await Trip.findById(req.params.id).populate({
+    const { userId, tripId } = req.params
+
+    const user = await User.findById(userId)
+    console.log(user)
+    if (!user) throw new NotFoundError('Usuario no encontrado')
+
+    const trip = await Trip.findById(tripId);
+    if (!trip) throw new NotFoundError('Viaje no existe.')
+    console.log(`trip found: ${trip._id}`)
+
+    if (user.isAdmin) {
+
+        const tripPopulated = await trip.populate({
             path: 'passengers',
             populate: {
                 path: 'createdBy',
-                select: '_id username fullName addressCda addressCapital dni phone image email'
+                select: '_id username fullName addressCda addressCapital dni phone image email',
             },
-            select: 'fullName dni addressCda addressCapital'
+            select: 'fullName dni addressCda addressCapital',
         })
-        if (!trip) throw new NotFoundError('Viaje no existe.')
-        res.status(StatusCodes.OK).json(trip)
+        res.status(StatusCodes.OK).json(tripPopulated);
 
-    } else {
-        const trip = await Trip.findById(req.params.id)
-        if (!trip) throw new NotFoundError('Viaje no existe.')
-        res.status(StatusCodes.OK).json(trip)
     }
+    res.status(StatusCodes.OK).json(trip);
+
 }
 
 export const getTrips = async (req, res) => {
