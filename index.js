@@ -8,7 +8,7 @@ import errorHandlerMiddleware from './middleware/error-handler.js';
 import 'express-async-errors'
 import authRoute from './routes/auth.js'
 import salesRoute from './routes/sales.js'
-import OverallStat from './models/OverallStat.js'
+// import OverallStat from './models/OverallStat.js'
 import { dataOverallStat } from './data/index.js'
 import usersRoute from './routes/users.js'
 import tripsRoute from './routes/trips.js'
