@@ -30,6 +30,12 @@ const UserSchema = new mongoose.Schema({
         minLength: 3,
         trim: true,
     },
+    cpassword: {
+        type: String,
+        required: [true, 'Por favor, confirma tu contraseña.'],
+        minLength: 3,
+        trim: true,
+    },
     phone: {
         type: Number,
         required: [true, 'Por favor, ingresar número celular.'],
@@ -74,10 +80,6 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    isReminder: {
-        type: Boolean,
-        default: false,
-    },
     myTrips: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Trip'
@@ -90,6 +92,9 @@ const UserSchema = new mongoose.Schema({
     confirmationCode: {
         type: String,
         unique: true
+    },
+    verifyToken: {
+        type: String
     }
 },
     { timestamps: true }
