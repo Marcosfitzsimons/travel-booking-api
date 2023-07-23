@@ -110,7 +110,7 @@ export const sendPasswordLink = async (req, res) => {
         expiresIn: "500s"
     });
 
-    const setUserToken = await user.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
+    const setUserToken = await User.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
 
 
     if (setUserToken) {
