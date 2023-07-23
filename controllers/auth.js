@@ -106,7 +106,7 @@ export const sendPasswordLink = async (req, res) => {
     if (!user) throw new UnauthenticatedError('Usuario no registrado.')
 
     // token generate for reset password
-    const token = jwt.sign({ _id: userfind._id }, process.env.JWT, {
+    const token = jwt.sign({ _id: user._id }, process.env.JWT, {
         expiresIn: "500s"
     });
 
