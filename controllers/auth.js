@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import nodemailer from 'nodemailer'
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 import sendConfirmationEmail from '../config/nodemailer.config.js';
@@ -78,6 +79,107 @@ export const login = async (req, res, next) => {
     })
 }
 
+// check if works
+
+// email config 
+
+const user = process.env.ZOHO_USER
+const pass = process.env.ZOHO_PASS
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.zoho.com",
+    port: 587,
+    secure: false, // If true, port should be 465
+    auth: {
+        user: user,
+        pass: pass,
+        authMethod: 'PLAIN', // Specify PLAIN authentication method
+    },
+});
+
+// send email link for reset password
+export const sendPasswordLink = async (req, res) => {
+    const { email } = req.body;
+    if (!email) throw new UnauthenticatedError('Email no registrado.')
+
+    const user = await User.findOne({ email: email });
+    if (!user) throw new UnauthenticatedError('Usuario no registrado.')
+
+    // token generate for reset password
+    const token = jwt.sign({ _id: userfind._id }, process.env.JWT, {
+        expiresIn: "500s"
+    });
+
+    const setUserToken = await user.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
+
+
+    if (setUserToken) {
+        const mailOptions = {
+            from: process.env.ZOHO_USER,
+            to: email,
+            subject: "Recuperar contraseña", // change href value
+            text: `Este link es válido por 5 minutos: <a href=http://localhost:3001/forgotpassword/${user._id}/${setUserToken.verifyToken}>Recuperar Contraseña</a>`
+        }
+
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log("error", error);
+                throw new UnauthenticatedError('Error al enviar email.')
+            } else {
+                console.log("Email sent", info.response);
+                res.status(StatusCodes.OK).json({
+                    message: "Email enviado con éxito"
+                })
+            }
+        })
+
+    }
+}
+
+// check if works
+// verify user for forgot password time
+export const forgotPassword = async (req, res) => {
+    const { id, token } = req.params;
+
+    const validUser = await User.findOne({ _id: id, verifyToken: token });
+
+    const verifyToken = jwt.verify(token, process.env.JWT);
+
+    if (validUser && verifyToken.id) {
+        res.status(StatusCodes.OK).json(validUser)
+    } else {
+        throw new UnauthenticatedError('Usuario no existe.')
+    }
+
+}
+
+// check if works
+// change password
+export const changePassword = async (req, res) => {
+    const { id, token } = req.params;
+
+    const { password } = req.body;
+
+    const validUser = await User.findOne({ _id: id, verifyToken: token });
+
+    const verifyToken = jwt.verify(token, process.env.JWT);
+
+    if (validUser && verifyToken.id) {
+        const newPassword = await bcrypt.hash(password, 12);
+
+        const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { password: newPassword });
+
+        setNewUserPass.save();
+        res.status(StatusCodes.OK).json(setNewUserPass)
+
+    } else {
+        throw new UnauthenticatedError('Usuario no existe.')
+    }
+}
+
+
+// verify user status
 export const verifyUser = async (req, res) => {
     let user = await User.findOne({
         confirmationCode: req.params.confirmationCode,
