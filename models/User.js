@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
     fullName: {
         type: String,
         minLength: 3,
-        maxLength: 25,
+        maxLength: 35,
         required: [true, 'Por favor, ingresar nombre completo.']
     },
     email: {
@@ -27,13 +27,13 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Por favor, ingresar contraseña.'],
-        minLength: 3,
+        minLength: 6,
         trim: true,
     },
     cpassword: {
         type: String,
         required: [true, 'Por favor, confirma tu contraseña.'],
-        minLength: 3,
+        minLength: 6,
         trim: true,
     },
     phone: {
