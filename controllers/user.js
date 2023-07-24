@@ -13,7 +13,7 @@ export const updateUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { ...userDetails } }, { new: true })
     if (!updatedUser) throw new NotFoundError('Usuario no existe.')
 
-    const { password, isAdmin, isPlus, ...userData } = updatedUser._doc
+    const { password, cpassword, isAdmin, isPlus, ...userData } = updatedUser._doc
 
     res.status(StatusCodes.OK).json(userData)
 
@@ -57,7 +57,6 @@ export const getUser = async (req, res) => {
             addressCapital: user.addressCapital,
             phone: user.phone,
             dni: user.dni,
-            isReminder: user.isReminder,
             myTrips: filteredUserTrips,
             image: user.image
         }
