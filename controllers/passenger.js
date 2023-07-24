@@ -176,8 +176,6 @@ export const deletePassenger = async (req, res, next) => {
         res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
     }
 
-
-
 }
 
 // user: ready

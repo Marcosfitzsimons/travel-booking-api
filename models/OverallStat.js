@@ -16,8 +16,8 @@ const OverallStatSchema = new mongoose.Schema({
     monthlyData: [
         {
             month: String,
-            totalSales: Number,
-            totalUnits: Number,
+            totalSales: Number, // total ingresos
+            totalUnits: Number, // total viajes
         }
     ],
     dailyData: [
