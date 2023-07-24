@@ -8,8 +8,8 @@ router.post('/login', login)
 router.post('/register', register)
 
 // user forgot password 
-router.post('/sendpasswordlink', sendPasswordLink)
-router.get("/forgotpassword/:id/:token", forgotPassword)
+router.post('/sendpasswordlink', sendPasswordLink) // check link href
+router.get("/forgotpassword/:id/:token", forgotPassword) // continue al check if works with frotend part.
 router.post("/changepassword/:id/:token", changePassword)
 
 // verify email
