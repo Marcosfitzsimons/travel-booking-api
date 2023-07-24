@@ -118,7 +118,7 @@ export const sendPasswordLink = async (req, res) => {
             from: process.env.ZOHO_USER,
             to: email,
             subject: "Recuperar contraseña", // change href value
-            text: `Este link es válido por 5 minutos: <a href="http://localhost:5173/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
+            html: `Este link es válido por 5 minutos: <a href="http://localhost:5173/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
         }
 
 
