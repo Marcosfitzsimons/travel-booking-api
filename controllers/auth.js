@@ -165,7 +165,7 @@ export const changePassword = async (req, res) => {
 
     const verifyToken = jwt.verify(token, process.env.JWT);
 
-    if (validUser && verifyToken.id) {
+    if (validUser && verifyToken._id) {
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password, salt);
 
