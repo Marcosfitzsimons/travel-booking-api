@@ -176,7 +176,7 @@ export const changePassword = async (req, res) => {
 
         const { password: userPassword, cpassword, isAdmin, isPlus, ...otherDetails } = setNewUserPass._doc;
 
-        res.status(StatusCodes.OK).json(...otherDetails)
+        res.status(StatusCodes.OK).json({ ...otherDetails })
 
     } else {
         throw new UnauthenticatedError('Usuario no existe.')
