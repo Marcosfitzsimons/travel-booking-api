@@ -5,8 +5,6 @@ import Trip from '../models/Trip.js'
 import User from '../models/User.js';
 
 
-// user: ready
-// admin: ready
 export const createPassenger = async (req, res, next) => {
 
     const tripId = req.params.tripid;
@@ -91,7 +89,7 @@ export const createPassenger = async (req, res, next) => {
 
 }
 
-// admin: 
+// admin: check
 export const updatePassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
     const userId = req.params.id
@@ -116,8 +114,6 @@ export const updatePassenger = async (req, res, next) => {
 
 }
 
-// user: ready
-// admin: ready
 export const deletePassenger = async (req, res, next) => {
 
     const tripId = req.params.tripid;
@@ -178,8 +174,6 @@ export const deletePassenger = async (req, res, next) => {
 
 }
 
-// user: ready
-// admin: ready
 export const getPassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
 
@@ -209,7 +203,6 @@ export const getPassenger = async (req, res, next) => {
 
 }
 
-// admin: ready
 export const getPassengers = async (req, res, next) => {
     const tripId = req.params.tripid;
 

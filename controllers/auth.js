@@ -7,10 +7,12 @@ import jwt from 'jsonwebtoken';
 import User from "../models/User.js";
 
 export const register = async (req, res, next) => {
-    const { fullName, username, email, password, addressCda, addressCapital, phone, dni } = req.body;
-    if (!fullName || !email || !username || !password || !addressCda || !addressCapital || !phone || !dni) {
+
+    const { fullName, username, email, password, cpassword, addressCda, addressCapital, phone, dni } = req.body;
+    if (!fullName || !email || !username || !password || !cpassword || !addressCda || !addressCapital || !phone || !dni) {
         throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
     }
+    if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden.')
 
     const emailExists = await User.findOne({ email });
     if (emailExists) {
@@ -24,10 +26,12 @@ export const register = async (req, res, next) => {
 
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
+    const hashc = bcrypt.hashSync(cpassword, salt);
 
     const user = new User({
         ...req.body,
         password: hash,
+        cpassword: hashc
     });
 
     const token = jwt.sign(
@@ -40,7 +44,7 @@ export const register = async (req, res, next) => {
 
     await user.save();
 
-    const { password: userPassword, isAdmin, isPlus, ...otherDetails } = user._doc;
+    const { password: userPassword, cpassword: userCPassword, isAdmin, isPlus, ...otherDetails } = user._doc;
 
     res.status(StatusCodes.CREATED).json({
         details: { ...otherDetails },
@@ -70,7 +74,7 @@ export const login = async (req, res, next) => {
 
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, { expiresIn: process.env.JWT_LIFETIME })
 
-    const { password, isAdmin, isPlus, ...otherDetails } = user._doc
+    const { password, cpassword, isAdmin, isPlus, ...otherDetails } = user._doc;
 
     res.status(StatusCodes.OK).json({
         details: { ...otherDetails },
@@ -78,8 +82,6 @@ export const login = async (req, res, next) => {
         isAdmin
     })
 }
-
-// check if works
 
 // email config 
 
@@ -137,7 +139,6 @@ export const sendPasswordLink = async (req, res) => {
     }
 }
 
-// check if works
 // verify user for forgot password time
 export const forgotPassword = async (req, res) => {
     const { id, token } = req.params;
@@ -148,14 +149,14 @@ export const forgotPassword = async (req, res) => {
     const verifyToken = jwt.verify(token, process.env.JWT);
 
     if (validUser && verifyToken._id) {
-        res.status(StatusCodes.OK).json(validUser)
+        const { password, cpassword, isAdmin, isPlus, ...otherDetails } = validUser._doc;
+        res.status(StatusCodes.OK).json({ ...otherDetails })
     } else {
         throw new UnauthenticatedError('Usuario no existe.')
     }
 
 }
 
-// check if works
 // change password
 export const changePassword = async (req, res) => {
     const { id, token } = req.params;
@@ -169,11 +170,13 @@ export const changePassword = async (req, res) => {
     if (validUser && verifyToken._id) {
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password, salt);
-
         const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { password: hash });
 
         setNewUserPass.save();
-        res.status(StatusCodes.OK).json(setNewUserPass)
+
+        const { password: userPassword, cpassword, isAdmin, isPlus, ...otherDetails } = setNewUserPass._doc;
+
+        res.status(StatusCodes.OK).json(...otherDetails)
 
     } else {
         throw new UnauthenticatedError('Usuario no existe.')
