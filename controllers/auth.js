@@ -103,9 +103,9 @@ export const sendPasswordLink = async (req, res) => {
     if (!email) throw new UnauthenticatedError('Email no registrado.')
 
     const user = await User.findOne({ email: email });
-    if (!user) throw new UnauthenticatedError('Usuario no registrado.')
+    if (!user) throw new UnauthenticatedError('No hay un usuario registrado con ese email.')
 
-    // token generate for reset password
+    // token generated for reset password
     const token = jwt.sign({ _id: user._id }, process.env.JWT, {
         expiresIn: "500s"
     });
@@ -118,7 +118,7 @@ export const sendPasswordLink = async (req, res) => {
             from: process.env.ZOHO_USER,
             to: email,
             subject: "Recuperar contraseña", // change href value
-            text: `Este link es válido por 5 minutos: <a href=http://localhost:3001/forgotpassword/${user._id}/${setUserToken.verifyToken}>Recuperar Contraseña</a>`
+            text: `Este link es válido por 5 minutos: http://localhost:3001/forgotpassword/${user._id}/${setUserToken.verifyToken}>`
         }
 
 
@@ -146,7 +146,7 @@ export const forgotPassword = async (req, res) => {
 
     const verifyToken = jwt.verify(token, process.env.JWT);
 
-    if (validUser && verifyToken.id) {
+    if (validUser && verifyToken._id) {
         res.status(StatusCodes.OK).json(validUser)
     } else {
         throw new UnauthenticatedError('Usuario no existe.')
@@ -166,9 +166,10 @@ export const changePassword = async (req, res) => {
     const verifyToken = jwt.verify(token, process.env.JWT);
 
     if (validUser && verifyToken.id) {
-        const newPassword = await bcrypt.hash(password, 12);
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(password, salt);
 
-        const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { password: newPassword });
+        const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { password: hash });
 
         setNewUserPass.save();
         res.status(StatusCodes.OK).json(setNewUserPass)
