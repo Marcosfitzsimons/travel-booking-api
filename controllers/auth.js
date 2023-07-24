@@ -118,7 +118,7 @@ export const sendPasswordLink = async (req, res) => {
             from: process.env.ZOHO_USER,
             to: email,
             subject: "Recuperar contraseña", // change href value
-            text: `Este link es válido por 5 minutos: http://localhost:5173/forgotpassword/${user._id}/${setUserToken.verifyToken}`
+            text: `Este link es válido por 5 minutos: <a href="http://localhost:5173/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
         }
 
 
@@ -143,6 +143,7 @@ export const forgotPassword = async (req, res) => {
     const { id, token } = req.params;
 
     const validUser = await User.findOne({ _id: id, verifyToken: token });
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
 
     const verifyToken = jwt.verify(token, process.env.JWT);
 
