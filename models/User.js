@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: [true, 'Por favor, ingresar username.'],
+        required: [true, 'Por favor, ingresar nombre de usuario.'],
         minLength: 3,
         maxLength: 15,
         trim: true,
@@ -28,21 +28,27 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Por favor, ingresar contraseña.'],
         minLength: 6,
+        maxLength: 30,
         trim: true,
     },
     cpassword: {
         type: String,
         required: [true, 'Por favor, confirma tu contraseña.'],
         minLength: 6,
+        maxLength: 30,
         trim: true,
     },
     phone: {
         type: Number,
         required: [true, 'Por favor, ingresar número celular.'],
+        minLength: 6,
+        maxLength: 20,
     },
     dni: {
         type: Number,
         required: [true, 'Por favor, ingresar DNI.'],
+        minLength: 6,
+        maxLength: 20,
     },
     addressCda: {
         street: {
