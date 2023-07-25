@@ -28,14 +28,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Por favor, ingresar contraseña.'],
         minLength: 6,
-        maxLength: 30,
+        maxLength: 100,
         trim: true,
     },
     cpassword: {
         type: String,
         required: [true, 'Por favor, confirma tu contraseña.'],
         minLength: 6,
-        maxLength: 30,
+        maxLength: 100,
         trim: true,
     },
     phone: {
