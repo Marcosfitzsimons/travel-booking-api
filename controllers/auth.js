@@ -13,6 +13,7 @@ export const register = async (req, res, next) => {
         throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
     }
     if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden.')
+    if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres.')
 
     const emailExists = await User.findOne({ email });
     if (emailExists) {
