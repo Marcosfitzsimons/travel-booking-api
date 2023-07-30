@@ -23,9 +23,21 @@ export const createTrip = async (req, res) => {
 export const updateTrip = async (req, res) => {
     const updatedTrip = await Trip.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
     if (!updatedTrip) throw new NotFoundError('Viaje no existe')
+    if (req.user.isAdmin) {
 
-    res.status(StatusCodes.OK).json(updatedTrip)
+        const tripPopulated = await updatedTrip.populate({
+            path: 'passengers',
+            populate: {
+                path: 'createdBy',
+                select: '_id username fullName addressCda addressCapital dni phone image email',
+            },
+            select: 'fullName dni addressCda addressCapital isPaid',
+        })
+        res.status(StatusCodes.OK).json(tripPopulated);
 
+    } else {
+        res.status(StatusCodes.OK).json(updatedTrip)
+    }
 }
 
 export const deleteTrip = async (req, res) => {
@@ -55,12 +67,14 @@ export const getTrip = async (req, res) => {
                 path: 'createdBy',
                 select: '_id username fullName addressCda addressCapital dni phone image email',
             },
-            select: 'fullName dni addressCda addressCapital',
+            select: 'fullName dni addressCda addressCapital isPaid',
         })
         res.status(StatusCodes.OK).json(tripPopulated);
 
+    } else {
+
+        res.status(StatusCodes.OK).json(trip);
     }
-    res.status(StatusCodes.OK).json(trip);
 
 }
 
