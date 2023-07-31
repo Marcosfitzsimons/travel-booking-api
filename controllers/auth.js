@@ -15,7 +15,7 @@ export const register = async (req, res, next) => {
     if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden.')
     if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres.')
 
-    const emailLowercase = username.toLowerCase()
+    const emailLowercase = email.toLowerCase()
 
     const emailExists = await User.findOne({ emailLowercase });
     if (emailExists) {
