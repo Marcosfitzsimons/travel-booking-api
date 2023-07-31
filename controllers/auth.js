@@ -15,12 +15,16 @@ export const register = async (req, res, next) => {
     if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden.')
     if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres.')
 
-    const emailExists = await User.findOne({ email });
+    const emailLowercase = username.toLowerCase()
+
+    const emailExists = await User.findOne({ emailLowercase });
     if (emailExists) {
         throw new BadRequestError('Email ya está en uso.');
     }
 
-    const usernameExists = await User.findOne({ username });
+    const usernameLowercase = username.toLowerCase()
+
+    const usernameExists = await User.findOne({ usernameLowercase });
     if (usernameExists) {
         throw new BadRequestError('Nombre de usuario ya está en uso.');
     }
@@ -31,6 +35,8 @@ export const register = async (req, res, next) => {
 
     const user = new User({
         ...req.body,
+        username: usernameLowercase,
+        email: emailLowercase,
         password: hash,
         cpassword: hashc
     });
@@ -54,7 +60,7 @@ export const register = async (req, res, next) => {
 
     sendConfirmationEmail(
         user.fullName,
-        user.email,
+        user.emailLowercase,
         user.confirmationCode
     );
 };
@@ -62,9 +68,12 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
     const { emailOrUsername, password: userReqPassword } = req.body
 
-    let user = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
-
     if (!emailOrUsername) throw new BadRequestError('Ingresa tu nombre de usuario o email.')
+
+    const emailOrUsernameLowercase = emailOrUsername.toLowerCase()
+
+    let user = await User.findOne({ $or: [{ email: emailOrUsernameLowercase }, { username: emailOrUsernameLowercase }] });
+
     if (!user) throw new UnauthenticatedError('Usuario no encontrado.')
 
     if (user.status != "Active") throw new UnauthenticatedError('Cuenta pendiente. Por favor, verifique su email!')
@@ -103,9 +112,10 @@ const transporter = nodemailer.createTransport({
 // send email link for reset password
 export const sendPasswordLink = async (req, res) => {
     const { email } = req.body;
-    if (!email) throw new UnauthenticatedError('Email no registrado.')
+    if (!email) throw new UnauthenticatedError('Debes ingresar un email válido.')
 
-    const user = await User.findOne({ email: email });
+    const emailLowercase = email.toLowerCase()
+    const user = await User.findOne({ email: emailLowercase });
     if (!user) throw new UnauthenticatedError('No hay un usuario registrado con ese email.')
 
     // token generated for reset password
@@ -119,7 +129,7 @@ export const sendPasswordLink = async (req, res) => {
     if (setUserToken) {
         const mailOptions = {
             from: process.env.ZOHO_USER,
-            to: email,
+            to: emailLowercase,
             subject: "Recuperar contraseña", // change href value
             html: `Este link es válido por 5 minutos: <a href="https://www.fabebuscda.com.ar/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
         }
