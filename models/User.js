@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
         maxLength: 15,
         trim: true,
         unique: true,
+        match: [/^[a-zA-Z0-9]*$/, 'Nombre de usuario no debe tener espacios ni caracteres especiales.']
     },
     fullName: {
         type: String,
