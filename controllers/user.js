@@ -6,16 +6,31 @@ import User from "../models/User.js"
 // add validation 
 export const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id)
-    if (!user) throw new NotFoundError('User not found')
+    if (!user) throw new NotFoundError('Usuario no encontrado')
     const { ...userDetails } = req.body.userData;
     if (!req.body.userData) throw new NotFoundError('User data not found.')
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { ...userDetails } }, { new: true })
-    if (!updatedUser) throw new NotFoundError('Usuario no existe.')
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { ...userDetails } }, { new: true }).populate('myTrips')
+    if (!updatedUser) throw new NotFoundError('Error al editar usuario.')
 
     const { password, cpassword, isAdmin, isPlus, ...userData } = updatedUser._doc
 
-    res.status(StatusCodes.OK).json(userData)
+    const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
+    const userTrips = updatedUser.myTrips.map(trip => ({
+        id: trip._id,
+        name: trip.name,
+        date: trip.date,
+        from: trip.from,
+        to: trip.to,
+        departureTime: trip.departureTime,
+        arrivalTime: trip.arrivalTime,
+        price: trip.price,
+        maxCapacity: trip.maxCapacity,
+        available: trip.available
+    }))
+    const filteredUserTrips = userTrips.filter(trip => trip.date >= currentDate).sort((a, b) => new Date(a.date) - new Date(b.date))
+
+    res.status(StatusCodes.OK).json({ ...userData, myTrips: filteredUserTrips })
 
 }
 
