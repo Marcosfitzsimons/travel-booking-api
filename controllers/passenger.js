@@ -103,7 +103,7 @@ export const updatePassenger = async (req, res, next) => {
     const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
-    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: { createdBy: req.body } }, { new: true })
+    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true })
 
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
 
