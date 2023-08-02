@@ -92,7 +92,7 @@ export const createPassenger = async (req, res, next) => {
 // admin: check
 export const updatePassenger = async (req, res, next) => {
     const tripId = req.params.tripid;
-    const userId = req.params.id
+    const passengerId = req.params.id
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
@@ -100,12 +100,12 @@ export const updatePassenger = async (req, res, next) => {
         select: 'fullName dni addressCda addressCapital isPaid'
     });
 
-    const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
+    const passenger = trip.passengers.find(passenger => String(passenger._id) === String(passengerId))
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
     const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: req.body }, { new: true })
 
-    const passengerIndex = trip.passengers.findIndex(passenger => String(passenger.createdBy._id) === String(userId));
+    const passengerIndex = trip.passengers.findIndex(passenger => String(passenger._id) === String(passengerId));
 
     trip.passengers[passengerIndex] = updatedPassenger
     console.log(updatedPassenger)
