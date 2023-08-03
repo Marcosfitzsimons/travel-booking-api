@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+// ADD TO SPECIAL PASSENGER SCHEMA
+// isPaid: {
+//     type: Boolean,
+//     default: false,
+// },
+
 const SpecialPassengerSchema = new mongoose.Schema({
     fullName: {
         type: String,

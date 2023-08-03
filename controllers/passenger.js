@@ -115,7 +115,6 @@ export const updatePassenger = async (req, res, next) => {
 }
 
 export const deletePassenger = async (req, res, next) => {
-
     const tripId = req.params.tripid;
     const userId = req.params.id
 

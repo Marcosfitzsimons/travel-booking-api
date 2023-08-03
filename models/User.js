@@ -7,7 +7,6 @@ const UserSchema = new mongoose.Schema({
         minLength: 3,
         maxLength: 15,
         trim: true,
-        unique: true,
         match: [/^[a-zA-Z0-9]*$/, 'Nombre de usuario no debe tener espacios ni caracteres especiales.']
     },
     fullName: {
@@ -23,7 +22,6 @@ const UserSchema = new mongoose.Schema({
         maxLength: 40,
         trim: true,
         match: [/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Por favor, escribí un email válido.'],
-        unique: true,
     },
     password: {
         type: String,
