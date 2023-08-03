@@ -60,7 +60,7 @@ export const register = async (req, res, next) => {
 
     sendConfirmationEmail(
         user.fullName,
-        user.emailLowercase,
+        user.email,
         user.confirmationCode
     );
 };
