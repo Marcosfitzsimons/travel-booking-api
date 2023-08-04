@@ -16,13 +16,13 @@ export const register = async (req, res, next) => {
     if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres.')
 
     const emailLowercase = email.toLowerCase()
+    const usernameLowercase = username.toLowerCase()
 
     const emailExists = await User.findOne({ emailLowercase });
     if (emailExists) {
         throw new BadRequestError('Email ya está en uso.');
     }
 
-    const usernameLowercase = username.toLowerCase()
 
     const usernameExists = await User.findOne({ usernameLowercase });
     if (usernameExists) {
