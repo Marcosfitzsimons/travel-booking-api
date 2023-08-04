@@ -8,13 +8,10 @@ export const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id)
     if (!user) throw new NotFoundError('Usuario no encontrado')
 
-    const { fullName, username, email, addressCda, addressCapital, phone, dni } = req.body.userData;
-    if (!fullName || !email || !username || !addressCda || !addressCapital || !phone || !dni) {
-        throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
-    }
-
-    const { ...userDetails } = req.body.userData;
+    const { addressCapital, ...userDetails } = req.body.userData;
     if (!req.body.userData) throw new NotFoundError('Error al encontrar información acerca del usuario.')
+
+    if (!addressCapital) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
 
     const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { ...userDetails } }, { new: true }).populate('myTrips')
     if (!updatedUser) throw new NotFoundError('Error al editar usuario.')
