@@ -13,7 +13,7 @@ export const updateUser = async (req, res) => {
 
     if (!addressCapital) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
 
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { ...userDetails } }, { new: true }).populate('myTrips')
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { addressCapital, ...userDetails } }, { new: true }).populate('myTrips')
     if (!updatedUser) throw new NotFoundError('Error al editar usuario.')
 
     const { password, cpassword, isAdmin, isPlus, ...userData } = updatedUser._doc
