@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { format, parse } from "date-fns";
-import { NotFoundError } from '../errors/index.js'
+import { BadRequestError, NotFoundError } from '../errors/index.js'
 import User from "../models/User.js"
 
 // add validation 
