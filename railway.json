@@ -4,8 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
+    "numReplicas": 3,
     "startCommand": "npm start",
-    "restartPolicyType": "ALWAYS",
-    "restartPolicyMaxRetries": 10
+    "restartPolicyType": "ALWAYS"
   }
 }
