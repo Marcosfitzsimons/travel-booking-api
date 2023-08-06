@@ -5,7 +5,7 @@
   },
   "deploy": {
     "numReplicas": 1,
-    "startCommand": "railway up",
+    "startCommand": "npm start index.js",
     "restartPolicyType": "ON_FAILURE"
   }
 }
