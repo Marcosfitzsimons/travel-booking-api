@@ -4,8 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "numReplicas": 3,
-    "startCommand": "rs",
-    "restartPolicyType": "ALWAYS"
+    "numReplicas": 1,
+    "startCommand": "railway up",
+    "restartPolicyType": "ON_FAILURE"
   }
 }
