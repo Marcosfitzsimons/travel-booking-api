@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm node index.js",
+    "startCommand": "npm start",
     "restartPolicyType": "ALWAYS",
     "restartPolicyMaxRetries": 10
   }
