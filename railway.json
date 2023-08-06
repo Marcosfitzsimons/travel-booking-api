@@ -5,7 +5,7 @@
   },
   "deploy": {
     "numReplicas": 3,
-    "startCommand": "npm start",
+    "startCommand": "rs",
     "restartPolicyType": "ALWAYS"
   }
 }
