@@ -144,16 +144,16 @@ export const getTrips = async (req, res) => {
 //     const sundayTrips = [];
 
 //     mondayTrips.push(await generateAndSaveTrip(1, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '05:00', '07:30', 2500, 10));
-//     mondayTrips.push(await generateAndSaveTrip(1, 'De Capital Federal a Carmen', 'Capital Federal', 'Carmen de Areco', '18:00', '20:30', 2500, 10));
+//     mondayTrips.push(await generateAndSaveTrip(1, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '18:00', '20:30', 2500, 10));
 
 //     wednesdayTrips.push(await generateAndSaveTrip(3, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '06:00', '08:30', 2500, 10));
-//     wednesdayTrips.push(await generateAndSaveTrip(3, 'De Capital Federal a Carmen', 'Capital Federal', 'Carmen de Areco', '18:00', '20:30', 2500, 10));
+//     wednesdayTrips.push(await generateAndSaveTrip(3, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '18:00', '20:30', 2500, 10));
 
 //     fridayTrips.push(await generateAndSaveTrip(5, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '07:00', '09:30', 2500, 10));
-//     fridayTrips.push(await generateAndSaveTrip(5, 'De Capital Federal a Carmen', 'Capital Federal', 'Carmen de Areco', '18:00', '20:30', 2500, 10));
+//     fridayTrips.push(await generateAndSaveTrip(5, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '18:00', '20:30', 2500, 10));
 
 //     sundayTrips.push(await generateAndSaveTrip(0, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '19:30', '22:00', 2500, 10));
-//     sundayTrips.push(await generateAndSaveTrip(0, 'De Capital Federal a Carmen', 'Capital Federal', 'Carmen de Areco', '23:30', '01:30', 2500, 10));
+//     sundayTrips.push(await generateAndSaveTrip(0, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '23:30', '01:30', 2500, 10));
 
 //     console.log('Monday trips:', mondayTrips);
 //     console.log('Wednesday trips:', wednesdayTrips);
