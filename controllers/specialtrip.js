@@ -2,8 +2,10 @@ import { format, parse, parseISO } from "date-fns";
 import { StatusCodes } from 'http-status-codes';
 import { NotFoundError } from '../errors/index.js'
 import SpecialTrip from "../models/SpecialTrip.js"
+import createNewSpecialPassengers from "../services/specialPassengerService.js";
 
 export const createSpecialTrip = async (req, res) => {
+    const { add_passengers, default_passenger_count, maxCapacity } = req.body;
     const newDate = new Date(req.body.date);
     const formattedDate = newDate.toISOString();
     const parseDate = parseISO(formattedDate);
@@ -14,7 +16,18 @@ export const createSpecialTrip = async (req, res) => {
     })
 
     const savedSpecialTrip = await newSpecialTrip.save()
-    console.log(savedSpecialTrip)
+
+    if (add_passengers) {
+
+        if (default_passenger_count) {
+            const passengerCount = Math.min(default_passenger_count, maxCapacity - 1);
+            const newPassengers = await createNewSpecialPassengers(passengerCount);
+            savedSpecialTrip.passengers.push(...newPassengers);
+        }
+
+        await savedSpecialTrip.save();
+    }
+
     res.status(StatusCodes.OK).json(savedSpecialTrip)
 
 }
