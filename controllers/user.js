@@ -3,7 +3,19 @@ import { format, parse } from "date-fns";
 import { BadRequestError, NotFoundError } from '../errors/index.js'
 import User from "../models/User.js"
 
-// add validation 
+export const updateUserStatus = async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) throw new NotFoundError('Usuario no encontrado')
+
+    const { status } = req.body.userData;
+    if (!status) throw new BadRequestError('Por favor, proporciona un estado válido.');
+
+    user.status = status;
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ message: 'Estado del usuario actualizado exitosamente.', userStatus: user.status });
+}
+
 export const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id)
     if (!user) throw new NotFoundError('Usuario no encontrado')
@@ -45,7 +57,6 @@ export const deleteUser = async (req, res) => {
 
 }
 
-
 export const getUser = async (req, res) => {
 
     const user = await User.findById(req.params.id).populate('myTrips');
@@ -81,10 +92,9 @@ export const getUser = async (req, res) => {
         }
     })
 }
-export const getUsers = async (req, res) => {
 
+export const getUsers = async (req, res) => {
     const users = await User.find()
     res.status(StatusCodes.OK).json(users)
-
 }
 
