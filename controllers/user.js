@@ -93,6 +93,18 @@ export const getUser = async (req, res) => {
     })
 }
 
+export const getUserAddresses = async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) throw new NotFoundError('Usuario no existe.')
+
+    res.status(StatusCodes.OK).json({
+        userAddresses: {
+            addressCda: user.addressCda,
+            addressCapital: user.addressCapital,
+        }
+    })
+}
+
 export const getUsers = async (req, res) => {
     const users = await User.find()
     res.status(StatusCodes.OK).json(users)
