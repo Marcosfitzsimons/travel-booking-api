@@ -3,19 +3,6 @@ import { format, parse } from "date-fns";
 import { BadRequestError, NotFoundError } from '../errors/index.js'
 import User from "../models/User.js"
 
-export const updateUserStatus = async (req, res) => {
-    const user = await User.findById(req.params.id)
-    if (!user) throw new NotFoundError('Usuario no encontrado')
-
-    const { status } = req.body.userData;
-    if (!status) throw new BadRequestError('Por favor, proporciona un estado válido.');
-
-    user.status = status;
-    await user.save();
-
-    res.status(StatusCodes.OK).json({ message: 'Estado del usuario actualizado exitosamente.', userStatus: user.status });
-}
-
 export const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id)
     if (!user) throw new NotFoundError('Usuario no encontrado')
@@ -47,6 +34,19 @@ export const updateUser = async (req, res) => {
 
     res.status(StatusCodes.OK).json({ ...userData, myTrips: filteredUserTrips })
 
+}
+
+export const updateUserStatus = async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) throw new NotFoundError('Usuario no encontrado')
+
+    const { status } = req.body.userData;
+    if (!status) throw new BadRequestError('Por favor, proporciona un estado válido.');
+
+    user.status = status;
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ message: 'Estado del usuario actualizado exitosamente.', userStatus: user.status });
 }
 
 export const updateUserAddresses = async (req, res) => {
@@ -121,6 +121,30 @@ export const getUserAddresses = async (req, res) => {
             addressCda: user.addressCda,
             addressCapital: user.addressCapital,
         }
+    })
+}
+
+export const getUserTrips = async (req, res) => {
+    const user = await User.findById(req.params.id).populate('myTrips');
+    if (!user) throw new NotFoundError('Usuario no existe.')
+
+    const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
+    const userTrips = user.myTrips.map(trip => ({
+        _id: trip._id,
+        name: trip.name,
+        date: trip.date,
+        from: trip.from,
+        to: trip.to,
+        departureTime: trip.departureTime,
+        arrivalTime: trip.arrivalTime,
+        price: trip.price,
+        maxCapacity: trip.maxCapacity,
+        available: trip.available
+    }))
+
+    const filteredUserTrips = userTrips.filter(trip => trip.date >= currentDate).sort((a, b) => new Date(a.date) - new Date(b.date))
+    res.status(StatusCodes.OK).json({
+        userTrips: filteredUserTrips
     })
 }
 
