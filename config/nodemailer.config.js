@@ -19,7 +19,7 @@ const sendConfirmationEmail = (name, email, confirmationCode) => {
     transport.sendMail({
         from: user,
         to: email,
-        subject: "Confirma tu cuenta por favor",
+        subject: "Confirma tu cuenta",
         html: `<h1>Confirmación por email</h1>
           <h2>Hola ${name}</h2>
           <p>Por favor, verifique su cuenta haciendo click en el siguiente enlace:</p>
