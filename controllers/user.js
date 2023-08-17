@@ -49,6 +49,25 @@ export const updateUser = async (req, res) => {
 
 }
 
+export const updateUserAddresses = async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) throw new NotFoundError('Usuario no encontrado')
+
+    const { addressCapital, addressCda } = req.body;
+    if (!addressCda || !addressCapital) {
+        throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
+    }
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { addressCapital, addressCda } }, { new: true })
+    if (!updatedUser) throw new NotFoundError('Error al editar domicilios.')
+
+    const updatedAddresses = {
+        addressCapital: updatedUser.addressCapital,
+        addressCda: updatedUser.addressCda
+    };
+
+    res.status(StatusCodes.OK).json(updatedAddresses)
+}
+
 export const deleteUser = async (req, res) => {
 
     const user = await User.findByIdAndDelete(req.params.id)
