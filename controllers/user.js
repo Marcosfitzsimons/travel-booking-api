@@ -82,34 +82,51 @@ export const getUser = async (req, res) => {
     if (!user) throw new NotFoundError('Usuario no existe.')
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
-    const userTrips = user.myTrips.map(trip => ({
-        id: trip._id,
-        name: trip.name,
-        date: trip.date,
-        from: trip.from,
-        to: trip.to,
-        departureTime: trip.departureTime,
-        arrivalTime: trip.arrivalTime,
-        price: trip.price,
-        maxCapacity: trip.maxCapacity,
-        available: trip.available
-    }))
-    const filteredUserTrips = userTrips.filter(trip => trip.date >= currentDate).sort((a, b) => new Date(a.date) - new Date(b.date))
-    res.status(StatusCodes.OK).json({
-        user: {
-            _id: user._id,
-            username: user.username,
-            fullName: user.fullName,
-            email: user.email,
-            addressCda: user.addressCda,
-            addressCapital: user.addressCapital,
-            phone: user.phone,
-            dni: user.dni,
-            myTrips: filteredUserTrips,
-            image: user.image,
-            status: user.status
-        }
-    })
+    if (req.user.isAdmin) {
+        const userTrips = user.myTrips.map(trip => ({
+            id: trip._id,
+            name: trip.name,
+            date: trip.date,
+            from: trip.from,
+            to: trip.to,
+            departureTime: trip.departureTime,
+            arrivalTime: trip.arrivalTime,
+            price: trip.price,
+            maxCapacity: trip.maxCapacity,
+            available: trip.available
+        }))
+        const filteredUserTrips = userTrips.filter(trip => trip.date >= currentDate).sort((a, b) => new Date(a.date) - new Date(b.date))
+        res.status(StatusCodes.OK).json({
+            user: {
+                _id: user._id,
+                username: user.username,
+                fullName: user.fullName,
+                email: user.email,
+                addressCda: user.addressCda,
+                addressCapital: user.addressCapital,
+                phone: user.phone,
+                dni: user.dni,
+                myTrips: filteredUserTrips,
+                image: user.image,
+                status: user.status
+            }
+        })
+    } else {
+        res.status(StatusCodes.OK).json({
+            user: {
+                _id: user._id,
+                username: user.username,
+                fullName: user.fullName,
+                email: user.email,
+                addressCda: user.addressCda,
+                addressCapital: user.addressCapital,
+                phone: user.phone,
+                dni: user.dni,
+                image: user.image,
+            }
+        })
+    }
+
 }
 
 export const getUserAddresses = async (req, res) => {
