@@ -84,7 +84,7 @@ export const login = async (req, res, next) => {
 
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, { expiresIn: process.env.JWT_LIFETIME })
 
-    const { password, cpassword, isAdmin, isPlus, confirmationCode, myTrips, status, ...otherDetails } = user._doc;
+    const { password, cpassword, isAdmin, isPlus, confirmationCode, myTrips, ...otherDetails } = user._doc;
 
     res.status(StatusCodes.OK).json({
         details: { ...otherDetails },
