@@ -43,19 +43,16 @@ export const register = async (req, res, next) => {
 
     const token = jwt.sign(
         { id: user._id, isAdmin: user.isAdmin },
-        process.env.JWT, // Make sure this environment variable is set.
-        { expiresIn: process.env.JWT_LIFETIME } // Make sure this environment variable is set.
+        process.env.JWT,
+        { expiresIn: process.env.JWT_LIFETIME }
     );
 
-    user.confirmationCode = token; // Assign the generated token to the confirmationCode.
+    user.confirmationCode = token;
 
     await user.save();
 
-    const { password: userPassword, cpassword: userCPassword, isAdmin, isPlus, ...otherDetails } = user._doc;
-
     res.status(StatusCodes.CREATED).json({
-        details: { ...otherDetails },
-        token: token
+        "success": "Usuario creado con éxito"
     });
 
     sendConfirmationEmail(
@@ -82,15 +79,90 @@ export const login = async (req, res, next) => {
     const isPasswordCorrect = await bcrypt.compare(userReqPassword, user.password)
     if (!isPasswordCorrect) throw new BadRequestError('Contraseña incorrecta.')
 
-    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, { expiresIn: process.env.JWT_LIFETIME })
 
-    const { password, cpassword, isAdmin, isPlus, confirmationCode, myTrips, ...otherDetails } = user._doc;
+    const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.JWT,
+        { expiresIn: process.env.JWT_LIFETIME } // production: ~ 1h
+    )
 
+    const refreshToken = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.REFRESH_JWT,
+        { expiresIn: process.env.REFRESH_JWT_LIFETIME }
+    )
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // Add secure: true -> when working with https
+
+    const { _id, status } = user._doc;
+
+    console.log({
+        details: { _id, status },
+        token: token
+    })
     res.status(StatusCodes.OK).json({
-        details: { ...otherDetails },
+        details: { _id, status },
         token: token
     })
 }
+
+export const logout = async (req, res, next) => {
+    // Delete the accessToken on client
+
+    const cookies = req.cookies
+
+    if (!cookies?.jwt) throw new UnauthenticatedError('Problem with cookies')
+
+    const refreshTokenValue = cookies.jwt;
+
+    let user = await User.findOne({ refreshToken: refreshTokenValue });
+    if (!user) {
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }); // Add secure: true
+        return res.status(StatusCodes.NO_CONTENT).send();
+    }
+
+    // Delete refreshToken in db
+    user.refreshToken = ""; // Clear the refreshToken field
+    await user.save();
+
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }); // Add secure: true
+    return res.status(StatusCodes.NO_CONTENT).send();
+}
+
+export const refreshToken = async (req, res, next) => {
+    const cookies = req.cookies
+
+    if (!cookies?.jwt) throw new UnauthenticatedError('Problem with cookies')
+
+    const refreshTokenValue = cookies.jwt;
+
+    let user = await User.findOne({ refreshToken: refreshTokenValue });
+    if (!user) throw new UnauthenticatedError('Usuario no encontrado.')
+    console.log(refreshTokenValue)
+    console.log(user._id)
+
+    jwt.verify(
+        refreshTokenValue,
+        process.env.REFRESH_JWT,
+        (err, decoded) => {
+            if (err || user._id.toString() !== decoded.id) return res.sendStatus(403);
+
+            const accessToken = jwt.sign(
+                { id: decoded.id, isAdmin: decoded.isAdmin },
+                process.env.JWT,
+                { expiresIn: process.env.JWT_LIFETIME }
+            )
+            res.status(StatusCodes.OK).json({
+                isAdmin: decoded.isAdmin,
+                token: accessToken
+            })
+        }
+    )
+}
+
 
 // email config 
 
@@ -118,8 +190,8 @@ export const sendPasswordLink = async (req, res) => {
     if (!user) throw new UnauthenticatedError('No hay un usuario registrado con ese email.')
 
     // token generated for reset password
-    const token = jwt.sign({ _id: user._id }, process.env.JWT, {
-        expiresIn: "500s"
+    const token = jwt.sign({ id: user._id }, process.env.JWT, {
+        expiresIn: "800s"
     });
 
     const setUserToken = await User.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
@@ -129,7 +201,7 @@ export const sendPasswordLink = async (req, res) => {
         const mailOptions = {
             from: process.env.ZOHO_USER,
             to: emailLowercase,
-            subject: "Recuperar contraseña", // change href value
+            subject: "Recuperar contraseña",
             html: `Este link es válido por 5 minutos: <a href="https://www.fabebuscda.com.ar/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
         }
 

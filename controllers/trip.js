@@ -52,12 +52,10 @@ export const getTrip = async (req, res) => {
     const { userId, tripId } = req.params
 
     const user = await User.findById(userId)
-    console.log(user)
     if (!user) throw new NotFoundError('Usuario no encontrado')
 
     const trip = await Trip.findById(tripId);
     if (!trip) throw new NotFoundError('Viaje no existe.')
-    console.log(`trip found: ${trip._id}`)
 
     if (user.isAdmin) {
 

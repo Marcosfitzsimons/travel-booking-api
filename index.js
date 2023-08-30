@@ -3,9 +3,9 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
+import 'express-async-errors'
 import notFoundMiddleware from './middleware/not-found.js';
 import errorHandlerMiddleware from './middleware/error-handler.js';
-import 'express-async-errors'
 import authRoute from './routes/auth.js'
 import salesRoute from './routes/sales.js'
 // import OverallStat from './models/OverallStat.js'
@@ -18,6 +18,8 @@ import passengersRoute from './routes/passengers.js'
 import publicationsRoute from './routes/publications.js'
 import paymentsRoute from './routes/payments.js'
 import connectDB from './db/connect.js'
+import corsOptions from './config/corsOptions.js'
+import credentials from './middleware/credentials.js'
 
 const app = express()
 
@@ -32,16 +34,15 @@ mongoose.connection.on('disconnected', () => {
 })
 
 // middlewares
-app.use(cors())
+
+// Handle options credentials check - before CORS!
+// and fetch cookies credentiuals requirement
+app.use(credentials)
+
+app.use(cors(corsOptions));
 app.use(cookieParser())
 app.use(express.json())
 
-/*
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-})); 
-*/
 
 app.use("/api/auth", authRoute)
 app.use("/api/payments", paymentsRoute)

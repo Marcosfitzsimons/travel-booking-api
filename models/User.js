@@ -102,6 +102,9 @@ const UserSchema = new mongoose.Schema({
     },
     verifyToken: {
         type: String
+    },
+    refreshToken: {
+        type: String
     }
 },
     { timestamps: true }

@@ -1,20 +1,27 @@
 import jwt from 'jsonwebtoken'
-import { UnauthenticatedError } from '../errors/index.js'
+import { ForbiddenError, UnauthenticatedError } from '../errors/index.js'
 import User from '../models/User.js'
-import { createError } from '../utils/error.js'
 
 export const verifyToken = async (req, res, next) => {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
 
-    const authHeader = req.headers.authorization;
     if (!authHeader) throw new UnauthenticatedError('No token provided.')
-    const token = authHeader.split(' ')[1]
-
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
-        const decoded = jwt.verify(token, process.env.JWT)
-        req.user = await User.findById(decoded.id).select('-password')
-        next()
+        const token = authHeader.split(' ')[1]
+        jwt.verify(
+            token,
+            process.env.JWT,
+            async (err, decoded) => {
+                if (err) return res.sendStatus(403); //invalid token
+                req.user = await User.findById(decoded.id).select('-password -cpassword')
+                next();
+            }
+        );
+    } else {
+        throw new ForbiddenError('Invalid token provided.')
     }
+
 }
 
 export const verifyUser = (req, res, next) => {
