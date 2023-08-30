@@ -190,16 +190,16 @@ export const sendPasswordLink = async (req, res) => {
     if (!user) throw new UnauthenticatedError('No hay un usuario registrado con ese email.')
 
     // token generated for reset password
-    const token = jwt.sign({ id: user._id }, process.env.JWT, {
+    const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, {
         expiresIn: "800s"
     });
 
-    const setUserToken = await User.findByIdAndUpdate({ id: user._id }, { verifyToken: token }, { new: true });
+    const setUserToken = await User.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
 
 
     if (setUserToken) {
         const mailOptions = {
-            from: process.env.ZOHO_USER,
+            from: user,
             to: emailLowercase,
             subject: "Recuperar contraseña",
             html: `Este link es válido por 5 minutos: <a href="https://www.fabebuscda.com.ar/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
