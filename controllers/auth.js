@@ -95,16 +95,12 @@ export const login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // Add secure: true -> when working with https
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None', secure: true
 
-    const { _id, status } = user._doc;
+    const { _id, status, image } = user._doc;
 
-    console.log({
-        details: { _id, status },
-        token: token
-    })
     res.status(StatusCodes.OK).json({
-        details: { _id, status },
+        details: { _id, status, image },
         token: token
     })
 }
@@ -196,10 +192,9 @@ export const sendPasswordLink = async (req, res) => {
 
     const setUserToken = await User.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
 
-
     if (setUserToken) {
         const mailOptions = {
-            from: user,
+            from: process.env.ZOHO_USER,
             to: emailLowercase,
             subject: "Recuperar contraseña",
             html: `Este link es válido por 5 minutos: <a href="https://www.fabebuscda.com.ar/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
@@ -221,10 +216,11 @@ export const sendPasswordLink = async (req, res) => {
     }
 }
 
+// NO FUNCIONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 // verify user for forgot password time
 export const forgotPassword = async (req, res) => {
     const { id, token } = req.params;
-
+    console.log(id, token)
     const validUser = await User.findOne({ _id: id, verifyToken: token });
     if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
 
