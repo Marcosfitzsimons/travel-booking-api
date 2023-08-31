@@ -123,6 +123,7 @@ export const deletePassenger = async (req, res, next) => {
         populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
         select: 'fullName dni addressCda addressCapital'
     });
+
     if (!req.user.isAdmin) {
         const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
         if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
@@ -141,30 +142,32 @@ export const deletePassenger = async (req, res, next) => {
 
         res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
 
-    }
-
-    const user = await User.findById(userId).populate('myTrips');
-    if (!user) {
-        const passenger = trip.passengers.find(passenger => String(passenger._id) === String(userId))
-        if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
-
-        await Passenger.findByIdAndDelete(passenger._id)
-        trip.passengers.pull(passenger._id);
-
-        res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
     } else {
-        const passenger = trip.passengers.find(passenger => String(passenger.createdBy?._id) === String(userId))
-        if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
-        await Passenger.findByIdAndDelete(passenger._id)
-        trip.passengers.pull(passenger._id);
-        await trip.save()
-        const userTrip = user.myTrips.find(userTrip => String(userTrip._id) === String(tripId))
+        const user = await User.findById(userId).populate('myTrips');
+        if (!user) {
+            const passenger = trip.passengers.find(passenger => String(passenger._id) === String(userId))
+            if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
-        user.myTrips.pull(userTrip._id)
-        await user.save();
+            await Passenger.findByIdAndDelete(passenger._id)
+            trip.passengers.pull(passenger._id);
 
-        res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
+            res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
+        } else {
+            const passenger = trip.passengers.find(passenger => String(passenger.createdBy?._id) === String(userId))
+            if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
+            await Passenger.findByIdAndDelete(passenger._id)
+            trip.passengers.pull(passenger._id);
+            await trip.save()
+            const userTrip = user.myTrips.find(userTrip => String(userTrip._id) === String(tripId))
+
+            user.myTrips.pull(userTrip._id)
+            await user.save();
+
+            res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
+        }
     }
+
+
 
 }
 
