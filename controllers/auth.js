@@ -95,7 +95,7 @@ export const login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None', secure: true
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None'
 
     const { _id, status, image } = user._doc;
 
@@ -152,7 +152,11 @@ export const refreshToken = async (req, res, next) => {
                 { expiresIn: process.env.JWT_LIFETIME }
             )
             res.status(StatusCodes.OK).json({
-                isAdmin: decoded.isAdmin,
+                user: {
+                    _id: user._id,
+                    status: user.status,
+                    image: user.image
+                },
                 token: accessToken
             })
         }
