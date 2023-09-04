@@ -97,12 +97,19 @@ export const login = async (req, res, next) => {
 
     res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None'
 
-    const { _id, status, image } = user._doc;
+    const { _id, status, isAdmin, image } = user._doc;
 
-    res.status(StatusCodes.OK).json({
-        details: { _id, status, image },
-        token: token
-    })
+    if (user.isAdmin) {
+        res.status(StatusCodes.OK).json({
+            details: { _id, isAdmin, image },
+            token: token
+        })
+    } else {
+        res.status(StatusCodes.OK).json({
+            details: { _id, status, image },
+            token: token
+        })
+    }
 }
 
 export const logout = async (req, res, next) => {
