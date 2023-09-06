@@ -1,5 +1,5 @@
 import express from "express";
-import { createPassenger, deletePassenger, getPassenger, getPassengers, updatePassenger } from "../controllers/passenger.js";
+import { createPassenger, deletePassenger, getPassenger, getPassengers, updatePassenger, updatePaid } from "../controllers/passenger.js";
 import { verifyAdmin, verifyUser } from '../middleware/verifyToken.js'
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.post("/:id/:tripid", verifyUser, createPassenger)
 
 // UPDATE 
 router.put("/:id/:tripid", verifyAdmin, updatePassenger)
+router.put("/paid/:id/:tripid", verifyUser, updatePaid)
 
 // DELETE - WORKS - ADMIN/USER
 router.delete("/:id/:tripid", verifyUser, deletePassenger)
