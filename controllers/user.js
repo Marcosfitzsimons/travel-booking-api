@@ -44,7 +44,6 @@ export const updateUser = async (req, res) => {
                 dni: user.dni,
                 myTrips: filteredUserTrips,
                 image: user.image,
-                status: user.status
             }
         })
     } else {
