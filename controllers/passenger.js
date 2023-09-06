@@ -90,7 +90,7 @@ export const createPassenger = async (req, res, next) => {
 }
 
 // admin: check
-export const updatePassenger = async (req, res, next) => {
+export const updatePassenger = async (req, res) => {
     const tripId = req.params.tripid;
     const passengerId = req.params.id
 
@@ -114,7 +114,30 @@ export const updatePassenger = async (req, res, next) => {
 
 }
 
-export const deletePassenger = async (req, res, next) => {
+export const updatePaid = async (req, res) => {
+    const tripId = req.params.tripid;
+    const passengerId = req.params.id;
+
+    const trip = await Trip.findById(tripId).populate({
+        path: 'passengers',
+    });
+    console.log(`trip is : ${trip}`)
+    const passenger = trip.passengers.find(passenger => String(passenger._id) === String(passengerId))
+    if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
+
+    const updatedPassenger = await Passenger.findByIdAndUpdate(passenger._id, { $set: { isPaid: req.body.isPaid } }, { new: true })
+
+    const passengerIndex = trip.passengers.findIndex(passenger => String(passenger._id) === String(passengerId));
+
+    trip.passengers[passengerIndex] = updatedPassenger
+    console.log(`trip after updatedPassenger is : ${trip}`)
+    await trip.save();
+    console.log(`updatedPassenger: ${updatedPassenger}`)
+
+    res.status(StatusCodes.OK).json({ updatedPassenger });
+}
+
+export const deletePassenger = async (req, res) => {
     const tripId = req.params.tripid;
     const userId = req.params.id
 
@@ -167,11 +190,9 @@ export const deletePassenger = async (req, res, next) => {
         }
     }
 
-
-
 }
 
-export const getPassenger = async (req, res, next) => {
+export const getPassenger = async (req, res) => {
     const tripId = req.params.tripid;
 
     const trip = await Trip.findById(tripId).populate({
