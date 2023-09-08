@@ -204,13 +204,14 @@ export const sendPasswordLink = async (req, res) => {
     const setUserToken = await User.findByIdAndUpdate({ _id: user._id }, { verifyToken: token }, { new: true });
 
     if (setUserToken) {
+        const sanitizedToken = token.replace(/\./g, '_');
+
         const mailOptions = {
             from: process.env.ZOHO_USER,
             to: emailLowercase,
             subject: "Recuperar contraseña",
-            html: `Este link es válido por 5 minutos: <a href="https://www.fabebuscda.com.ar/forgotpassword/${user._id}/${setUserToken.verifyToken}">Recuperar contraseña</a>`
+            html: `Este link es válido por 5 minutos: <a href="https://www.fabebuscda.com.ar/forgotpassword/${user._id}/${sanitizedToken}">Recuperar contraseña</a>`
         }
-
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
@@ -227,19 +228,17 @@ export const sendPasswordLink = async (req, res) => {
     }
 }
 
-// NO FUNCIONAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-// verify user for forgot password time
+// verify user for forgot password
 export const forgotPassword = async (req, res) => {
     const { id, token } = req.params;
-    console.log(id, token)
-    const validUser = await User.findOne({ _id: id, verifyToken: token });
-    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
 
     const verifyToken = jwt.verify(token, process.env.JWT);
 
-    if (validUser && verifyToken._id) {
-        const { password, cpassword, isAdmin, isPlus, ...otherDetails } = validUser._doc;
-        res.status(StatusCodes.OK).json({ ...otherDetails })
+    const validUser = await User.findOne({ _id: id });
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
+
+    if (verifyToken.id) {
+        res.status(StatusCodes.NO_CONTENT).send()
     } else {
         throw new UnauthenticatedError('Usuario no existe.')
     }
@@ -248,31 +247,31 @@ export const forgotPassword = async (req, res) => {
 
 // change password
 export const changePassword = async (req, res) => {
-    const { id, token } = req.params;
+    const { id } = req.params;
 
-    const { password } = req.body;
+    const { password, token } = req.body;
+    if (!password) throw new BadRequestError('Contraseña nueva es requerida')
+    if (!token) throw new BadRequestError('Token es requerido')
 
-    const validUser = await User.findOne({ _id: id, verifyToken: token });
+    const validUser = await User.findOne({ _id: id });
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
 
     const verifyToken = jwt.verify(token, process.env.JWT);
 
-    if (validUser && verifyToken._id) {
+    if (verifyToken.id) {
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password, salt);
         const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { password: hash });
 
         setNewUserPass.save();
 
-        const { password: userPassword, cpassword, isAdmin, isPlus, ...otherDetails } = setNewUserPass._doc;
-
-        res.status(StatusCodes.OK).json({ ...otherDetails })
-
+        res.status(StatusCodes.NO_CONTENT).send()
     } else {
         throw new UnauthenticatedError('Usuario no existe.')
     }
 }
 
-// verify user status
+// verify user
 export const verifyUser = async (req, res) => {
     let user = await User.findOne({
         confirmationCode: req.params.confirmationCode,
