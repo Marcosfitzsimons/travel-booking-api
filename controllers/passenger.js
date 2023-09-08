@@ -121,7 +121,7 @@ export const updatePaid = async (req, res) => {
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
     });
-    console.log(`trip is : ${trip}`)
+
     const passenger = trip.passengers.find(passenger => String(passenger._id) === String(passengerId))
     if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
@@ -130,9 +130,7 @@ export const updatePaid = async (req, res) => {
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger._id) === String(passengerId));
 
     trip.passengers[passengerIndex] = updatedPassenger
-    console.log(`trip after updatedPassenger is : ${trip}`)
     await trip.save();
-    console.log(`updatedPassenger: ${updatedPassenger}`)
 
     res.status(StatusCodes.OK).json({ updatedPassenger });
 }
@@ -148,6 +146,7 @@ export const deletePassenger = async (req, res) => {
     });
 
     if (!req.user.isAdmin) {
+
         const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
         if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
 
@@ -176,11 +175,13 @@ export const deletePassenger = async (req, res) => {
 
             res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
         } else {
+
             const passenger = trip.passengers.find(passenger => String(passenger.createdBy?._id) === String(userId))
             if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
             await Passenger.findByIdAndDelete(passenger._id)
             trip.passengers.pull(passenger._id);
             await trip.save()
+
             const userTrip = user.myTrips.find(userTrip => String(userTrip._id) === String(tripId))
 
             user.myTrips.pull(userTrip._id)
