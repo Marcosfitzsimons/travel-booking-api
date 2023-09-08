@@ -14,7 +14,7 @@ router.get('/refresh', refreshToken)
 // user forgot password 
 router.post('/sendpasswordlink', sendPasswordLink)
 router.get("/forgotpassword/:id/:token", forgotPassword)
-router.post("/changepassword/:id/:token", changePassword)
+router.post("/changepassword/:id", changePassword)
 
 // verify email
 router.get("/confirm/:confirmationCode", verifyUser)
