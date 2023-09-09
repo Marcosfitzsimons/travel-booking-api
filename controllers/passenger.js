@@ -108,7 +108,7 @@ export const updatePassenger = async (req, res) => {
     const passengerIndex = trip.passengers.findIndex(passenger => String(passenger._id) === String(passengerId));
 
     trip.passengers[passengerIndex] = updatedPassenger
-    console.log(updatedPassenger)
+
     await trip.save();
     res.status(StatusCodes.OK).json({ updatedPassenger });
 
@@ -135,20 +135,20 @@ export const updatePaid = async (req, res) => {
     res.status(StatusCodes.OK).json({ updatedPassenger });
 }
 
+// Fix error on delete passenger.
 export const deletePassenger = async (req, res) => {
     const tripId = req.params.tripid;
     const userId = req.params.id
 
     const trip = await Trip.findById(tripId).populate({
         path: 'passengers',
-        populate: { path: 'createdBy', select: '_id username fullName addressCda addressCapital phone dni image email' },
-        select: 'fullName dni addressCda addressCapital'
+        populate: { path: 'createdBy', select: '_id' },
     });
 
     if (!req.user.isAdmin) {
 
-        const passenger = trip.passengers.find(passenger => String(passenger.createdBy._id) === String(userId))
-        if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
+        const passenger = trip.passengers.find(passenger => String(passenger.createdBy?._id) === String(userId))
+        if (!passenger) throw new NotFoundError('No tenes pasaje para este viaje')
 
         await Passenger.findByIdAndDelete(passenger._id)
         trip.passengers.pull(passenger._id);
