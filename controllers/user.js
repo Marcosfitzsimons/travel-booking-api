@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { format, parse } from "date-fns";
 import { BadRequestError, NotFoundError } from '../errors/index.js'
 import User from "../models/User.js"
+import bcrypt from "bcrypt";
 
 export const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id)
@@ -93,6 +94,30 @@ export const updateUserAddresses = async (req, res) => {
     };
 
     res.status(StatusCodes.OK).json(updatedAddresses)
+}
+
+export const handleChangePassword = async (req, res) => {
+    const { id } = req.params;
+
+    const { password, cpassword } = req.body;
+
+    if (!password || !cpassword) throw new BadRequestError('Debes completar los datos antes de enviar')
+    if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden')
+    if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres')
+
+    const validUser = await User.findOne({ _id: id });
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
+
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(password, salt);
+    const hashc = bcrypt.hashSync(cpassword, salt);
+
+    const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { $set: { password: hash, cpassword: hashc } }, { new: true });
+
+    setNewUserPass.save();
+
+    res.status(StatusCodes.NO_CONTENT).send()
 }
 
 export const deleteUser = async (req, res) => {
