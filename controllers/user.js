@@ -10,12 +10,12 @@ export const updateUser = async (req, res) => {
 
     const { addressCapital, ...userDetails } = req.body.userData;
 
-    if (!req.body.userData) throw new NotFoundError('Error al encontrar información acerca del usuario.')
+    if (!req.body.userData) throw new NotFoundError('Error al encontrar información acerca del usuario')
 
-    if (!addressCapital) throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
+    if (!addressCapital) throw new BadRequestError('Por favor, completar todos los datos antes de enviar');
 
     const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { addressCapital, ...userDetails } }, { new: true }).populate('myTrips')
-    if (!updatedUser) throw new NotFoundError('Error al editar usuario.')
+    if (!updatedUser) throw new NotFoundError('Error al editar usuario')
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
     if (req.user.isAdmin) {
@@ -35,30 +35,30 @@ export const updateUser = async (req, res) => {
 
         res.status(StatusCodes.OK).json({
             user: {
-                _id: user._id,
-                username: user.username,
-                fullName: user.fullName,
-                email: user.email,
-                addressCda: user.addressCda,
-                addressCapital: user.addressCapital,
-                phone: user.phone,
-                dni: user.dni,
+                _id: updatedUser._id,
+                username: updatedUser.username,
+                fullName: updatedUser.fullName,
+                email: updatedUser.email,
+                addressCda: updatedUser.addressCda,
+                addressCapital: updatedUser.addressCapital,
+                phone: updatedUser.phone,
+                dni: updatedUser.dni,
                 myTrips: filteredUserTrips,
-                image: user.image,
+                image: updatedUser.image,
             }
         })
     } else {
         res.status(StatusCodes.OK).json({
             user: {
-                _id: user._id,
-                username: user.username,
-                fullName: user.fullName,
-                email: user.email,
-                addressCda: user.addressCda,
-                addressCapital: user.addressCapital,
-                phone: user.phone,
-                dni: user.dni,
-                image: user.image,
+                _id: updatedUser._id,
+                username: updatedUser.username,
+                fullName: updatedUser.fullName,
+                email: updatedUser.email,
+                addressCda: updatedUser.addressCda,
+                addressCapital: updatedUser.addressCapital,
+                phone: updatedUser.phone,
+                dni: updatedUser.dni,
+                image: updatedUser.image,
             }
         })
     }
@@ -94,6 +94,27 @@ export const updateUserAddresses = async (req, res) => {
     };
 
     res.status(StatusCodes.OK).json(updatedAddresses)
+}
+
+export const updateAdminProfile = async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) throw new NotFoundError('Usuario no encontrado')
+
+    const userData = req.body.userData;
+    if (!userData) throw new NotFoundError('Error al encontrar información')
+
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: { ...userData } }, { new: true })
+    if (!updatedUser) throw new NotFoundError('Error al editar usuario')
+
+    res.status(StatusCodes.OK).json({
+        user: {
+            _id: updatedUser._id,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            image: updatedUser.image,
+        }
+    })
+
 }
 
 export const handleChangePassword = async (req, res) => {
@@ -219,6 +240,20 @@ export const getUserTrips = async (req, res) => {
 
 export const getUsers = async (req, res) => {
     const users = await User.find()
-    res.status(StatusCodes.OK).json(users)
+
+    const filteredUsers = users
+        .filter(user => !user.isAdmin)
+        .map(user => ({
+            _id: user._id,
+            fullName: user.fullName,
+            username: user.username,
+            email: user.email,
+            phone: user.phone,
+            dni: user.dni,
+            status: user.status,
+            image: user.image,
+        }));
+
+    res.status(StatusCodes.OK).json(filteredUsers)
 }
 
