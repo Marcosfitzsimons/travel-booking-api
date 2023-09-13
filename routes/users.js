@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteUser, getUser, getUserAddresses, getUserTrips, getUsers, handleChangePassword, updateUser, updateUserAddresses, updateUserStatus } from "../controllers/user.js";
+import { deleteUser, getUser, getUserAddresses, getUserTrips, getUsers, handleChangePassword, updateAdminProfile, updateUser, updateUserAddresses, updateUserStatus } from "../controllers/user.js";
 import { verifyAdmin, verifyUser } from "../middleware/verifyToken.js";
 
 const router = express.Router();
@@ -15,7 +15,10 @@ router.put("/:id/status", verifyAdmin, updateUserStatus)
 // UPDATE ADDRESSES
 router.put("/addresses/:id", verifyUser, updateUserAddresses)
 
-// Change user password
+// UPDATE ADMIN PROFILE
+router.put("/admin/:id", verifyAdmin, updateAdminProfile)
+
+// CHANGE PASSWORD
 router.put("/changepassword/:id", verifyUser, handleChangePassword)
 
 // DELETE
