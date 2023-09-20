@@ -252,6 +252,8 @@ export const getUsers = async (req, res) => {
             dni: user.dni,
             status: user.status,
             image: user.image,
+            addressCda: user.addressCda,
+            addressCapital: user.addressCapital,
         }));
 
     res.status(StatusCodes.OK).json(filteredUsers)
