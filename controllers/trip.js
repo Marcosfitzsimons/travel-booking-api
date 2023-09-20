@@ -86,9 +86,73 @@ export const getTrips = async (req, res) => {
     // console.log(filteredMyTrips)
 
     const trips = await Trip.find({ date: { $gte: currentDate } }).sort('date')
+    if (!trips) throw new NotFoundError('Error al obtener viajes')
 
     res.status(StatusCodes.OK).json(trips)
 
+}
+
+export const getIncomes = async (req, res) => {
+    const trips = await Trip.find().sort({ date: 1 });
+    if (!trips) throw new NotFoundError('Error al obtener viajes')
+
+    const incomes = trips.map(trip => (
+        {
+            _id: trip._id,
+            date: trip.date,
+            incomes: (trip.price * trip.passengers.length)
+        }
+    ))
+
+    res.status(StatusCodes.OK).json(incomes)
+}
+
+export const getMonthlyIncomes = async (req, res) => {
+    const { year, month } = req.params;
+    const startDate = new Date(year, month - 1, 1); // month is 0-indexed
+    const endDate = new Date(year, month, 0); // Get the last day of the month
+
+    const trips = await Trip.find({
+        date: {
+            $gte: startDate,
+            $lte: endDate,
+        },
+    }).sort({ date: 1 });
+
+    if (!trips) throw new NotFoundError('No se han encontrado viajes para el mes seleccionado');
+    if (trips.length === 0) throw new NotFoundError("No se han encontrado viajes para el mes seleccionado")
+
+    const incomes = trips.map(trip => ({
+        _id: trip._id,
+        date: trip.date,
+        incomes: trip.price * trip.passengers.length,
+    }));
+
+    res.status(StatusCodes.OK).json(incomes);
+};
+
+export const getRecentIncomes = async (req, res) => {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 10);
+
+    // Fetch trips within the last 10 days
+    const trips = await Trip.find({
+        date: { $gte: startDate },
+        'passengers.0': { $exists: true }
+    }).sort({ date: -1 }).limit(6); // Sort by 'date' in descending order (latest to oldest), and limit to 6 trips
+
+    if (!trips) {
+        throw new NotFoundError('No se han encontrado viajes en los últimos 10 días');
+    }
+
+    const incomes = trips.map(trip => ({
+        _id: trip._id,
+        name: trip.name,
+        date: trip.date,
+        incomes: trip.price * trip.passengers.length,
+    }));
+
+    res.status(StatusCodes.OK).json(incomes);
 }
 
 // Trip generation
