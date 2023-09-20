@@ -3,14 +3,13 @@ import { BadRequestError, NotFoundError } from '../errors/index.js'
 import Publication from "../models/Publication.js"
 
 export const createPublication = async (req, res) => {
-    const { title } = req.body
+    const { title, subtitle } = req.body
 
-    // req.body.createdAt must be in Argentina timezone
+    if (!title, !subtitle) throw new BadRequestError("Tu publicación debe tener al menos título y subtítulo")
 
-    if (!title) throw new BadRequestError("Tu publicación debe tener al menos un título.")
     const newPublication = new Publication({ ...req.body })
     const savedPublication = await newPublication.save()
-    console.log(savedPublication)
+
     res.status(StatusCodes.OK).json(savedPublication)
 
 }
@@ -27,7 +26,7 @@ export const deletePublication = async (req, res) => {
     const publication = await Publication.findByIdAndDelete(req.params.id)
     if (!publication) throw new NotFoundError('Publicación no existe')
 
-    res.status(StatusCodes.OK).json('Publicación ha sido eliminada.')
+    res.status(StatusCodes.OK).json('Publicación ha sido eliminada')
 
 }
 
@@ -35,14 +34,15 @@ export const getPublication = async (req, res) => {
 
     const publication = await Publication.findById(req.params.id)
 
-    if (!publication) throw new NotFoundError('Publicación no existe.')
+    if (!publication) throw new NotFoundError('Publicación no existe')
     res.status(StatusCodes.OK).json(publication)
 
 }
 
 export const getPublications = async (req, res) => {
     const publications = await Publication.find()
-    if (!publications) throw new NotFoundError("No hay publicaciones disponibles por el momento.")
+    if (!publications) throw new NotFoundError("No hay publicaciones disponibles por el momento")
+
     res.status(StatusCodes.OK).json(publications)
 
 }
