@@ -60,7 +60,6 @@ export const createPassenger = async (req, res, next) => {
             throw new BadRequestError('Invalid passenger information.');
         }
     }
-
     req.body.createdBy = req.params.id
 
     const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
@@ -168,12 +167,14 @@ export const deletePassenger = async (req, res) => {
         const user = await User.findById(userId).populate('myTrips');
         if (!user) {
             const passenger = trip.passengers.find(passenger => String(passenger._id) === String(userId))
-            if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje.')
+            if (!passenger) throw new NotFoundError('Pasajero no existe en este viaje')
 
             await Passenger.findByIdAndDelete(passenger._id)
             trip.passengers.pull(passenger._id);
 
-            res.status(StatusCodes.OK).json('Pasaje cancelado con éxito.')
+            await trip.save()
+
+            res.status(StatusCodes.OK).json('Pasaje cancelado con éxito')
         } else {
 
             const passenger = trip.passengers.find(passenger => String(passenger.createdBy?._id) === String(userId))
