@@ -17,6 +17,7 @@ import specialPassengersRoute from './routes/specialpassengers.js'
 import passengersRoute from './routes/passengers.js'
 import publicationsRoute from './routes/publications.js'
 import paymentsRoute from './routes/payments.js'
+import predefinedTripsRoute from './routes/predefinedtrips.js'
 import connectDB from './db/connect.js'
 import corsOptions from './config/corsOptions.js'
 import credentials from './middleware/credentials.js'
@@ -50,6 +51,7 @@ app.use("/api/sales", salesRoute)
 // app.use("/api/transaction", transactionRoute)
 app.use("/api/users", usersRoute)
 app.use("/api/trips", tripsRoute)
+app.use("/api/predefined-trips", predefinedTripsRoute)
 app.use("/api/passengers", passengersRoute)
 app.use("/api/special-trips", specialTripsRoute)
 app.use("/api/special-passengers", specialPassengersRoute)
