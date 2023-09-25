@@ -1,0 +1,134 @@
+import PredefinedTrip from "../models/PredefinedTrip.js"
+import { format, parse, parseISO } from "date-fns";
+import { StatusCodes } from 'http-status-codes';
+import { BadRequestError, NotFoundError } from '../errors/index.js'
+
+// Get all predefined trips
+export const getAllPredefinedTrips = async (req, res) => {
+    const predefinedTrips = await PredefinedTrip.find();
+    if (!predefinedTrips || predefinedTrips.length === 0) throw new NotFoundError('No se han encontrado viajes fijos')
+
+    res.status(StatusCodes.OK).json(predefinedTrips);
+
+};
+
+// Get predefined trips for a specific day of the week
+export const getPredefinedTripsForDay = async (req, res) => {
+    const { dayOfWeek } = req.params;
+
+    const predefinedTripsForDay = await PredefinedTrip.findOne({ dayOfWeek });
+
+    if (!predefinedTripsForDay) throw new NotFoundError('No se han encontrado viajes fijos para el día seleccionado')
+
+    res.status(StatusCodes.OK).json(predefinedTripsForDay);
+
+};
+
+// Create a new predefined trip for a specific day of the week
+export const createPredefinedTrip = async (req, res) => {
+    const { dayOfWeek, tripData } = req.body;
+
+    if (!dayOfWeek) throw new BadRequestError('Debes ingresar el día de la semana')
+    if (!tripData) throw new BadRequestError('Debes ingresar información acerca del viaje')
+
+    const predefinedTripsForDay = await PredefinedTrip.findOneAndUpdate(
+        { dayOfWeek },
+        {
+            $push: { trips: tripData }
+        },
+        { new: true, upsert: true }
+    );
+
+    if (!predefinedTripsForDay) throw new NotFoundError('Ha ocurrido un error al crear viaje fijo')
+
+    res.status(StatusCodes.OK).json(predefinedTripsForDay);
+
+};
+
+// Update predefined trips for a specific day of the week
+// unused
+export const updatePredefinedTripsForDay = async (req, res) => {
+    const { dayOfWeek } = req.params;
+    const { trips } = req.body;
+
+    if (!trips) throw new BadRequestError('Debes ingresar los viajes para ese día')
+
+    // trips must be the new updated trips array...
+    // like: [{tripUpdated}, {prevTrip}, {newTrip?}]
+
+    const updatedPredefinedTripsForDay = await PredefinedTrip.findOneAndUpdate(
+        { dayOfWeek },
+        { trips },
+        { new: true }
+    );
+
+    if (!updatedPredefinedTripsForDay) throw new NotFoundError('Ha ocurrido un error al actualizar viajes fijos')
+
+    res.status(StatusCodes.OK).json(updatedPredefinedTripsForDay);
+
+};
+
+// Delete predefined trips for a specific day of the week
+export const deletePredefinedTripsForDay = async (req, res) => {
+    const { dayOfWeek } = req.params;
+
+    const deletedTrip = await PredefinedTrip.findOneAndRemove({ dayOfWeek });
+    if (!deletedTrip) throw new NotFoundError('No hay viajes fijos para el día seleccionado')
+
+    res.status(StatusCodes.OK).json(`Viajes fijos eliminados con éxito`)
+};
+
+export const addTripToPredefinedDay = async (req, res) => {
+    const { dayOfWeek } = req.params;
+    const { tripData } = req.body;
+
+    if (!tripData) throw new BadRequestError('Debes ingresar información acerca del viaje');
+
+    const predefinedTripsForDay = await PredefinedTrip.findOne({ dayOfWeek });
+
+    if (!predefinedTripsForDay) {
+        throw new NotFoundError('No se encontraron viajes predefinidos para el día especificado');
+    }
+
+    // Check if the trips array already has 4 or more trips
+    if (predefinedTripsForDay.trips.length >= 4) throw new BadRequestError("No puedes agregar más de 4 viajes predefinidos por día");
+
+    // If the check passes, push the new trip data
+    predefinedTripsForDay.trips.push(tripData);
+
+    const updatedPredefinedTripsForDay = await predefinedTripsForDay.save();
+
+    res.status(StatusCodes.OK).json(updatedPredefinedTripsForDay);
+};
+
+export const updateTripInPredefinedDay = async (req, res) => {
+    const { dayOfWeek, tripId } = req.params;
+    const { updatedTripData } = req.body;
+
+    if (!updatedTripData) throw new BadRequestError('Debes ingresar información acerca del viaje');
+
+    // Update the specific trip with the new data using the $ positional operator
+    const updatedPredefinedTripsForDay = await PredefinedTrip.findOneAndUpdate(
+        { dayOfWeek, "trips._id": tripId },
+        { $set: { "trips.$": updatedTripData } },
+        { new: true }
+    );
+
+    if (!updatedPredefinedTripsForDay) throw new NotFoundError('Ha ocurrido un error al actualizar viaje fijo');
+
+    res.status(StatusCodes.OK).json(updatedPredefinedTripsForDay);
+};
+
+export const deleteTripFromPredefinedDay = async (req, res) => {
+    const { dayOfWeek, tripId } = req.params;
+
+    const updatedPredefinedTripsForDay = await PredefinedTrip.findOneAndUpdate(
+        { dayOfWeek },
+        { $pull: { trips: { _id: tripId } } }, // Remove the trip at the specified index
+        { new: true }
+    );
+    if (!updatedPredefinedTripsForDay) throw new NotFoundError('Ha ocurrido un error al eliminar viaje fijo');
+
+    res.status(StatusCodes.OK).json(updatedPredefinedTripsForDay);
+
+};
