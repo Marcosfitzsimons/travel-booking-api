@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { NotFoundError } from '../errors/index.js'
 import Trip from "../models/Trip.js"
 import User from "../models/User.js"
+import SpecialTrip from "../models/SpecialTrip.js";
 
 export const createTrip = async (req, res) => {
     const newDate = new Date(req.body.date);
@@ -23,21 +24,17 @@ export const createTrip = async (req, res) => {
 export const updateTrip = async (req, res) => {
     const updatedTrip = await Trip.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
     if (!updatedTrip) throw new NotFoundError('Viaje no existe')
-    if (req.user.isAdmin) {
 
-        const tripPopulated = await updatedTrip.populate({
-            path: 'passengers',
-            populate: {
-                path: 'createdBy',
-                select: '_id username fullName addressCda addressCapital dni phone image email',
-            },
-            select: 'fullName dni addressCda addressCapital isPaid',
-        })
-        res.status(StatusCodes.OK).json(tripPopulated);
+    const tripPopulated = await updatedTrip.populate({
+        path: 'passengers',
+        populate: {
+            path: 'createdBy',
+            select: '_id username fullName addressCda addressCapital dni phone image email',
+        },
+        select: 'fullName dni addressCda addressCapital isPaid',
+    })
+    res.status(StatusCodes.OK).json(tripPopulated);
 
-    } else {
-        res.status(StatusCodes.OK).json(updatedTrip)
-    }
 }
 
 export const deleteTrip = async (req, res) => {
@@ -94,13 +91,14 @@ export const getTrips = async (req, res) => {
 
 export const getIncomes = async (req, res) => {
     const trips = await Trip.find().sort({ date: 1 });
-    if (!trips) throw new NotFoundError('Error al obtener viajes')
+    if (!trips) throw new NotFoundError('Error al obtener ganancias en viajes semanales')
 
     const incomes = trips.map(trip => (
         {
             _id: trip._id,
             date: trip.date,
-            incomes: (trip.price * trip.passengers.length)
+            incomes: (trip.price * trip.passengers.length),
+            special: false,
         }
     ))
 
@@ -119,47 +117,46 @@ export const getMonthlyIncomes = async (req, res) => {
         },
     }).sort({ date: 1 });
 
+    const specialTrips = await SpecialTrip.find({
+        date: {
+            $gte: startDate,
+            $lte: endDate,
+        },
+    }).sort({ date: 1 });
+
     if (!trips) throw new NotFoundError('No se han encontrado viajes para el mes seleccionado');
     if (trips.length === 0) throw new NotFoundError("No se han encontrado viajes para el mes seleccionado")
 
-    const incomes = trips.map(trip => ({
-        _id: trip._id,
-        date: trip.date,
-        incomes: trip.price * trip.passengers.length,
-    }));
-
-    res.status(StatusCodes.OK).json(incomes);
-};
-
-export const getRecentIncomes = async (req, res) => {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 10);
-
-    // Fetch trips within the last 10 days
-    const trips = await Trip.find({
-        date: { $gte: startDate },
-        'passengers.0': { $exists: true }
-    }).sort({ date: -1 }).limit(6); // Sort by 'date' in descending order (latest to oldest), and limit to 6 trips
-
-    if (!trips) {
-        throw new NotFoundError('No se han encontrado viajes en los últimos 10 días');
+    let specialIncomes = []
+    if (specialTrips && specialTrips.length > 0) {
+        const filteredSpecialIncomes = specialTrips.filter(trip => trip.price * trip.passengers.length > 0)
+        specialIncomes = filteredSpecialIncomes.map(trip => ({
+            _id: trip._id,
+            date: trip.date,
+            name: trip.name,
+            specialIncomes: trip.price * trip.passengers.length,
+            incomes: 0
+        }));
     }
 
-    const incomes = trips.map(trip => ({
+    const filteredIncomes = trips.filter(trip => trip.price * trip.passengers.length > 0)
+
+    const incomes = filteredIncomes.map(trip => ({
         _id: trip._id,
-        name: trip.name,
         date: trip.date,
+        name: trip.name,
         incomes: trip.price * trip.passengers.length,
+        specialIncomes: 0
     }));
 
-    res.status(StatusCodes.OK).json(incomes);
-}
+    res.status(StatusCodes.OK).json([...incomes, ...specialIncomes]);
+};
 
 // Trip generation
 
 // const generateAndSaveTrip = async (dayOfWeek, name, from, to, departureTime, arrivalTime, price, maxCapacity) => {
-//     // Implement your trip generation logic here
-//     // Adjust the logic to generate trips based on your requirements
+//     Implement your trip generation logic here
+//     Adjust the logic to generate trips based on your requirements
 //     const trip = {
 //         name: name,
 //         from: from,
