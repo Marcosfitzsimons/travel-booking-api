@@ -4,8 +4,6 @@ import { verifyAdmin, verifyUser } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-
-
 // UPDATE  
 router.put("/:id", verifyUser, updateUser)
 

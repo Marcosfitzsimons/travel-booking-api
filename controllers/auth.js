@@ -10,23 +10,23 @@ export const register = async (req, res, next) => {
 
     const { fullName, username, email, password, cpassword, addressCda, addressCapital, phone, dni } = req.body;
     if (!fullName || !email || !username || !password || !cpassword || !addressCda || !addressCapital || !phone || !dni) {
-        throw new BadRequestError('Por favor, completar todos los datos antes de enviar.');
+        throw new BadRequestError('Por favor, completar todos los datos antes de enviar');
     }
-    if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden.')
-    if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres.')
+    if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden')
+    if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres')
 
     const emailLowercase = email.toLowerCase()
     const usernameLowercase = username.toLowerCase()
 
     const emailExists = await User.findOne({ emailLowercase });
     if (emailExists) {
-        throw new BadRequestError('Email ya está en uso.');
+        throw new BadRequestError('Email ya está en uso');
     }
 
 
     const usernameExists = await User.findOne({ usernameLowercase });
     if (usernameExists) {
-        throw new BadRequestError('Nombre de usuario ya está en uso.');
+        throw new BadRequestError('Nombre de usuario ya está en uso');
     }
 
     const salt = bcrypt.genSaltSync(10);
@@ -95,7 +95,7 @@ export const login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None'
+    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None'
 
     const { _id, status, isAdmin, image } = user._doc;
 
@@ -123,7 +123,7 @@ export const logout = async (req, res, next) => {
 
     let user = await User.findOne({ refreshToken: refreshTokenValue });
     if (!user) {
-        res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }); // Add secure: true
+        res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'None' }); // Add secure: true
         return res.status(StatusCodes.NO_CONTENT).send();
     }
 
@@ -131,7 +131,7 @@ export const logout = async (req, res, next) => {
     user.refreshToken = ""; // Clear the refreshToken field
     await user.save();
 
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }); // Add secure: true
+    res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'None' }); // Add secure: true
     return res.status(StatusCodes.NO_CONTENT).send();
 }
 
@@ -190,11 +190,11 @@ const transporter = nodemailer.createTransport({
 // send email link for reset password
 export const sendPasswordLink = async (req, res) => {
     const { email } = req.body;
-    if (!email) throw new UnauthenticatedError('Debes ingresar un email válido.')
+    if (!email) throw new UnauthenticatedError('Debes ingresar un email válido')
 
     const emailLowercase = email.toLowerCase()
     const user = await User.findOne({ email: emailLowercase });
-    if (!user) throw new UnauthenticatedError('No hay un usuario registrado con ese email.')
+    if (!user) throw new UnauthenticatedError('No hay un usuario registrado con ese email')
 
     // token generated for reset password
     const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT, {
@@ -235,12 +235,12 @@ export const forgotPassword = async (req, res) => {
     const verifyToken = jwt.verify(token, process.env.JWT);
 
     const validUser = await User.findOne({ _id: id });
-    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe')
 
     if (verifyToken.id) {
         res.status(StatusCodes.NO_CONTENT).send()
     } else {
-        throw new UnauthenticatedError('Usuario no existe.')
+        throw new UnauthenticatedError('Usuario no existe')
     }
 
 }
@@ -251,10 +251,12 @@ export const changePassword = async (req, res) => {
 
     const { password, token } = req.body;
     if (!password) throw new BadRequestError('Contraseña nueva es requerida')
+    if (password.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres')
+
     if (!token) throw new BadRequestError('Token es requerido')
 
     const validUser = await User.findOne({ _id: id });
-    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe')
 
     const verifyToken = jwt.verify(token, process.env.JWT);
 

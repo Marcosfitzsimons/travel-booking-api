@@ -1,7 +1,9 @@
 import PredefinedTrip from "../models/PredefinedTrip.js"
-import { format, parse, parseISO } from "date-fns";
 import { StatusCodes } from 'http-status-codes';
+import { format, addDays } from "date-fns";
 import { BadRequestError, NotFoundError } from '../errors/index.js'
+import Trip from "../models/Trip.js";
+import cron from 'node-cron'
 
 // Get all predefined trips
 export const getAllPredefinedTrips = async (req, res) => {
@@ -132,3 +134,73 @@ export const deleteTripFromPredefinedDay = async (req, res) => {
     res.status(StatusCodes.OK).json(updatedPredefinedTripsForDay);
 
 };
+
+const generateAndSaveTrips = async () => {
+    try {
+        // Fetch predefined trips from the database
+        const predefinedTrips = await PredefinedTrip.find();
+
+        // Calculate the current day of the week (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
+        const currentDayOfWeek = new Date().getUTCDay();
+
+        // Calculate the date of the next two weeks
+        const currentDate = new Date();
+        const twoWeeksLater = addDays(currentDate, 14);
+
+        // Iterate through predefined trips and generate trips
+        for (const predefinedTrip of predefinedTrips) {
+            // Determine the desired day of the week for this predefined trip
+            const desiredDayOfWeek = predefinedTrip.dayOfWeek === 'sunday' ? 0 :
+                predefinedTrip.dayOfWeek === 'monday' ? 1 :
+                    predefinedTrip.dayOfWeek === 'tuesday' ? 2 :
+                        predefinedTrip.dayOfWeek === 'wednesday' ? 3 :
+                            predefinedTrip.dayOfWeek === 'thursday' ? 4 :
+                                predefinedTrip.dayOfWeek === 'friday' ? 5 :
+                                    predefinedTrip.dayOfWeek === 'saturday' ? 6 : -1;
+
+            // Calculate the date of the desired day of the week for the next two weeks
+            let tripDate = new Date(currentDate.getTime());
+            tripDate.setDate(currentDate.getDate() + (desiredDayOfWeek + 7 - currentDayOfWeek) % 7);
+
+            // Generate and save trips for the next two weeks
+            while (tripDate <= twoWeeksLater) {
+                for (const tripDetails of predefinedTrip.trips) {
+                    // Check if a trip already exists for this date, departure time, and predefined trip
+                    const formattedTripDate = format(tripDate, "yyyy-MM-dd'T'12:00:00.000xxx"); // Format tripDate with the fixed time
+                    const existingTrip = await Trip.findOne({
+                        date: formattedTripDate,
+                        departureTime: tripDetails.departureTime,
+                    });
+
+                    // If no trip exists, create and save a new trip
+                    if (!existingTrip) {
+                        const newTrip = new Trip({
+                            name: tripDetails.name,
+                            from: tripDetails.from,
+                            to: tripDetails.to,
+                            departureTime: tripDetails.departureTime,
+                            arrivalTime: tripDetails.arrivalTime,
+                            price: tripDetails.price,
+                            maxCapacity: tripDetails.maxCapacity,
+                            date: format(tripDate, "yyyy-MM-dd'T'12:00:00.000xxx"),
+                        });
+
+                        // Save the trip to the database
+                        await newTrip.save();
+                    }
+                }
+
+                // Move to the same day of the next week
+                tripDate.setDate(tripDate.getDate() + 7);
+            }
+        }
+
+        console.log('Trips generated successfully.');
+    } catch (error) {
+        console.error('Error generating trips:', error);
+    }
+};
+
+cron.schedule('0 3 * * *', () => {
+    generateAndSaveTrips();
+});

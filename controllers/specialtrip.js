@@ -65,3 +65,47 @@ export const getSpecialTrips = async (req, res) => {
     res.status(StatusCodes.OK).json(specialTrips)
 
 }
+
+export const getSpecialIncomes = async (req, res) => {
+    const trips = await SpecialTrip.find().sort({ date: 1 });
+    if (!trips) throw new NotFoundError('Error al obtener ganancias en viajes particulares')
+
+    const incomes = trips.map(trip => (
+        {
+            _id: trip._id,
+            date: trip.date,
+            special: true,
+            incomes: (trip.price * trip.passengers.length),
+        }
+    ))
+
+    res.status(StatusCodes.OK).json(incomes)
+}
+
+export const getSpecialMonthlyIncomes = async (req, res) => {
+    const { year, month } = req.params;
+    const startDate = new Date(year, month - 1, 1); // month is 0-indexed
+    const endDate = new Date(year, month, 0); // Get the last day of the month
+
+    const trips = await SpecialTrip.find({
+        date: {
+            $gte: startDate,
+            $lte: endDate,
+        },
+    }).sort({ date: 1 });
+
+    if (!trips) throw new NotFoundError('No se han encontrado viajes para el mes seleccionado');
+    if (trips.length === 0) throw new NotFoundError("No se han encontrado viajes para el mes seleccionado")
+
+    const filteredIncomes = trips.filter(trip => trip.price * trip.passengers.length > 0)
+
+    const incomes = filteredIncomes.map(trip => ({
+        _id: trip._id,
+        date: trip.date,
+        name: trip.name,
+        special: false,
+        incomes: trip.price * trip.passengers.length,
+    }));
+
+    res.status(StatusCodes.OK).json(incomes);
+};
