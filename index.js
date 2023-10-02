@@ -7,9 +7,6 @@ import 'express-async-errors'
 import notFoundMiddleware from './middleware/not-found.js';
 import errorHandlerMiddleware from './middleware/error-handler.js';
 import authRoute from './routes/auth.js'
-import salesRoute from './routes/sales.js'
-// import OverallStat from './models/OverallStat.js'
-import { dataOverallStat } from './data/index.js'
 import usersRoute from './routes/users.js'
 import tripsRoute from './routes/trips.js'
 import specialTripsRoute from './routes/specialtrips.js'
@@ -47,8 +44,6 @@ app.use(express.json())
 
 app.use("/api/auth", authRoute)
 app.use("/api/payments", paymentsRoute)
-app.use("/api/sales", salesRoute)
-// app.use("/api/transaction", transactionRoute)
 app.use("/api/users", usersRoute)
 app.use("/api/trips", tripsRoute)
 app.use("/api/predefined-trips", predefinedTripsRoute)
@@ -80,7 +75,6 @@ const start = async () => {
         app.listen(port, () =>
             console.log(`Connected to backend. Server is listening on port ${port}...`)
         );
-        // OverallStat.insertMany(dataOverallStat)
     } catch (error) {
         console.log(error);
     }
