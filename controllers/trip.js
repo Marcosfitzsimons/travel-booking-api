@@ -152,70 +152,57 @@ export const getMonthlyIncomes = async (req, res) => {
     res.status(StatusCodes.OK).json([...incomes, ...specialIncomes]);
 };
 
-// Trip generation
+export const getYearlyIncomes = async (req, res) => {
+    const { year } = req.params;
 
-// const generateAndSaveTrip = async (dayOfWeek, name, from, to, departureTime, arrivalTime, price, maxCapacity) => {
-//     Implement your trip generation logic here
-//     Adjust the logic to generate trips based on your requirements
-//     const trip = {
-//         name: name,
-//         from: from,
-//         to: to,
-//         departureTime: departureTime,
-//         arrivalTime: arrivalTime,
-//         price: price,
-//         maxCapacity: maxCapacity
-//     };
+    const startDate = new Date(year, 0, 1); // January 1st of the given year
+    const endDate = new Date(year, 11, 31); // December 31st of the given year
 
-//     const tripDate = getNextDayOfWeek(dayOfWeek)
+    const trips = await Trip.find({
+        date: {
+            $gte: startDate,
+            $lte: endDate,
+        },
+    });
 
+    const specialTrips = await SpecialTrip.find({
+        date: {
+            $gte: startDate,
+            $lte: endDate,
+        },
+    });
 
-//     const formattedTripDate = format(tripDate, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx"); // Format tripDate to the desired format
+    if (!trips || trips.length === 0) {
+        throw new NotFoundError('No se han encontrado viajes para el año seleccionado');
+    }
 
-//     const newTrip = new Trip({
-//         ...trip,
-//         date: formattedTripDate
-//     })
+    // Create an object to store monthly incomes
+    const monthlyIncomes = {};
 
-//     const savedTrip = await newTrip.save();
-//     return savedTrip;
-// };
+    // Initialize monthly income data
+    for (let i = 0; i < 12; i++) {
+        const monthStartDate = new Date(year, i, 1);
+        const monthEndDate = new Date(year, i + 1, 0);
+        monthlyIncomes[i] = {
+            month: i + 1, // Month number (1-based)
+            totalIncomes: 0, // Initialize total income for the month
+        };
 
-// const getNextDayOfWeek = (dayOfWeek) => {
-//     const currentDate = new Date();
-//     const currentDayOfWeek = currentDate.getUTCDay(); // Current day of the week (0 - Sunday, 1 - Monday, ..., 6 - Saturday)
-//     let daysToAdd = dayOfWeek - currentDayOfWeek; // Calculate the number of days to add to reach the desired day of the week
+        // Calculate total incomes for regular trips
+        const filteredTrips = trips.filter(trip => trip.date >= monthStartDate && trip.date <= monthEndDate);
+        for (const trip of filteredTrips) {
+            monthlyIncomes[i].totalIncomes += trip.price * trip.passengers.length;
+        }
 
-//     if (daysToAdd <= 0) {
-//         daysToAdd += 7; // If the desired day has already passed this week, move to the next occurrence
-//     }
+        // Calculate total incomes for special trips
+        const filteredSpecialTrips = specialTrips.filter(trip => trip.date >= monthStartDate && trip.date <= monthEndDate);
+        for (const specialTrip of filteredSpecialTrips) {
+            monthlyIncomes[i].totalIncomes += specialTrip.price * specialTrip.passengers.length;
+        }
+    }
 
-//     const nextDay = new Date(currentDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
-//     nextDay.setUTCHours(12, 0, 0, 0); // Set the time to the start of the day (midnight)
+    // Convert the object into an array of monthly incomes
+    const monthlyIncomesArray = Object.values(monthlyIncomes);
 
-//     return nextDay;
-// };
-
-// (async () => {
-//     const mondayTrips = [];
-//     const wednesdayTrips = [];
-//     const fridayTrips = [];
-//     const sundayTrips = [];
-
-//     mondayTrips.push(await generateAndSaveTrip(1, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '05:00', '07:30', 3000, 19));
-//     mondayTrips.push(await generateAndSaveTrip(1, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '18:00', '20:30', 3000, 19));
-
-//     wednesdayTrips.push(await generateAndSaveTrip(3, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '06:00', '08:30', 3000, 19));
-//     wednesdayTrips.push(await generateAndSaveTrip(3, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '18:00', '20:30', 3000, 19));
-
-//     fridayTrips.push(await generateAndSaveTrip(5, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '07:00', '09:30', 3000, 19));
-//     fridayTrips.push(await generateAndSaveTrip(5, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '19:00', '21:30', 3000, 19));
-
-//     sundayTrips.push(await generateAndSaveTrip(0, 'De Carmen a Capital Federal', 'Carmen de Areco', 'Capital Federal', '19:30', '22:00', 3000, 19));
-//     sundayTrips.push(await generateAndSaveTrip(0, 'De Capital Federal a Carmen', 'Santa Fe & Thames', 'Carmen de Areco', '23:30', '01:30', 3000, 19));
-
-//     console.log('Monday trips:', mondayTrips);
-//     console.log('Wednesday trips:', wednesdayTrips);
-//     console.log('Friday trips:', fridayTrips);
-//     console.log('Sunday trips:', sundayTrips);
-// })();
+    res.status(StatusCodes.OK).json(monthlyIncomesArray);
+};
