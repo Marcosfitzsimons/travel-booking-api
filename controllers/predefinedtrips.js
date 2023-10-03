@@ -170,6 +170,7 @@ const generateAndSaveTrips = async () => {
                     const existingTrip = await Trip.findOne({
                         date: formattedTripDate,
                         departureTime: tripDetails.departureTime,
+                        name: tripDetails.name, // Add this condition to check the trip name
                     });
 
                     // If no trip exists, create and save a new trip
@@ -201,6 +202,6 @@ const generateAndSaveTrips = async () => {
     }
 };
 
-cron.schedule('0 3 * * *', () => {
+cron.schedule('0 7 * * *', () => {
     generateAndSaveTrips();
 });
