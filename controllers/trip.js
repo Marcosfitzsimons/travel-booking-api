@@ -1,22 +1,29 @@
 import { format, parse, parseISO } from "date-fns";
 import { StatusCodes } from 'http-status-codes';
-import { NotFoundError } from '../errors/index.js'
+import { NotFoundError, BadRequestError } from '../errors/index.js'
 import Trip from "../models/Trip.js"
 import User from "../models/User.js"
 import SpecialTrip from "../models/SpecialTrip.js";
 
 export const createTrip = async (req, res) => {
     const newDate = new Date(req.body.date);
-    const formattedDate = newDate.toISOString();
-    const parseDate = parseISO(formattedDate);
-    const date = format(parseDate, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
+
+    // Format the date portion to yyyy-MM-dd
+    const formattedDate = format(newDate, "yyyy-MM-dd");
+
+    // Fixed time you want
+    const fixedTime = '12:00:00.000Z';
+
+    // Construct the full date-time string with the fixed time and timezone
+    const date = `${formattedDate}T${fixedTime}`;
+
     const newTrip = new Trip({
         ...req.body,
         date: date
-    })
+    });
 
     const savedTrip = await newTrip.save()
-    console.log(savedTrip)
+    if (!savedTrip) throw new BadRequestError('Ha ocurrido un error al crear viaje')
     res.status(StatusCodes.OK).json(savedTrip)
 
 }
@@ -78,7 +85,7 @@ export const getTrips = async (req, res) => {
     // const formattedCurrentDate = new Date(currentDate);
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
-
+    console.log(currentDate)
     // const filteredMyTrips = user.myTrips.filter(trip => new Date(trip.date) >= formattedCurrentDate)
     // console.log(filteredMyTrips)
 
@@ -206,3 +213,4 @@ export const getYearlyIncomes = async (req, res) => {
 
     res.status(StatusCodes.OK).json(monthlyIncomesArray);
 };
+

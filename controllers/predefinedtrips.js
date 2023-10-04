@@ -1,6 +1,6 @@
 import PredefinedTrip from "../models/PredefinedTrip.js"
 import { StatusCodes } from 'http-status-codes';
-import { format, addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { BadRequestError, NotFoundError } from '../errors/index.js'
 import Trip from "../models/Trip.js";
 import cron from 'node-cron'
@@ -166,11 +166,12 @@ const generateAndSaveTrips = async () => {
             while (tripDate <= twoWeeksLater) {
                 for (const tripDetails of predefinedTrip.trips) {
                     // Check if a trip already exists for this date, departure time, and predefined trip
-                    const formattedTripDate = format(tripDate, "yyyy-MM-dd'T'12:00:00.000xxx"); // Format tripDate with the fixed time
+                    const fixedTime = '12:00:00.000Z';
+                    const formattedTripDate = `${format(tripDate, "yyyy-MM-dd")}T${fixedTime}`;
                     const existingTrip = await Trip.findOne({
                         date: formattedTripDate,
                         departureTime: tripDetails.departureTime,
-                        name: tripDetails.name, // Add this condition to check the trip name
+                        name: tripDetails.name,
                     });
 
                     // If no trip exists, create and save a new trip
@@ -183,7 +184,7 @@ const generateAndSaveTrips = async () => {
                             arrivalTime: tripDetails.arrivalTime,
                             price: tripDetails.price,
                             maxCapacity: tripDetails.maxCapacity,
-                            date: format(tripDate, "yyyy-MM-dd'T'12:00:00.000xxx"),
+                            date: formattedTripDate
                         });
 
                         // Save the trip to the database
