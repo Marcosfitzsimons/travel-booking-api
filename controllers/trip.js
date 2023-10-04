@@ -85,7 +85,6 @@ export const getTrips = async (req, res) => {
     // const formattedCurrentDate = new Date(currentDate);
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
-    console.log(currentDate)
     // const filteredMyTrips = user.myTrips.filter(trip => new Date(trip.date) >= formattedCurrentDate)
     // console.log(filteredMyTrips)
 
