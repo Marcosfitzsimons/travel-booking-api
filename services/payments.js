@@ -12,7 +12,7 @@ class PaymentService {
                     description: "Viaje con fabebus",
                     currency_id: "ARS",
                     quantity: 1,
-                    unit_price: 20 // trip.price
+                    unit_price: trip.price
                 }
             ],
             back_urls: {
