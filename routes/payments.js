@@ -4,8 +4,6 @@ import PaymentController from "../controllers/payment.js";
 import PaymentsService from '../services/payments.js'
 import Trip from '../models/Trip.js'
 
-
-import { verifyUser } from "../middleware/verifyToken.js";
 import BadRequestError from "../errors/bad-request.js";
 
 const PaymentInstance = new PaymentController(new PaymentsService());
@@ -25,7 +23,7 @@ router.post("/", async (req, res, next) => {
 
     const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
     if (existingPassenger) {
-        throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
+        throw new BadRequestError('Ey! Ya tenes boleto para este viaje')
     }
 
     PaymentInstance.getPaymentLink(req, res)

@@ -12,13 +12,13 @@ class PaymentService {
                     description: "Viaje con fabebus",
                     currency_id: "ARS",
                     quantity: 1,
-                    unit_price: trip.price
+                    unit_price: 20 // trip.price
                 }
             ],
             back_urls: {
-                failure: "http://localhost:5173/payment-failure",
-                pending: "http://localhost:5173/viajes",
-                success: `http://localhost:5173/payment-success/${userId}/${trip._id}`
+                failure: "https://www.fabebuscda.com.ar/payment-failure",
+                pending: "https://www.fabebuscda.com.ar/viajes",
+                success: `https://www.fabebuscda.com.ar/payment-success/${userId}/${trip._id}`
             },
             auto_return: "approved",
             payment_methods: {
