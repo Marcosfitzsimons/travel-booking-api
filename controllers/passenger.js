@@ -41,7 +41,7 @@ export const createPassenger = async (req, res, next) => {
             // Handle case of user passenger
             const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
             if (existingPassenger) {
-                throw new BadRequestError('Ey! Usuario ya tiene boleto para este viaje.')
+                throw new BadRequestError('Ey! Usuario ya tiene boleto para este viaje')
             }
 
             const newPassenger = new Passenger({ createdBy: userId });
@@ -64,7 +64,7 @@ export const createPassenger = async (req, res, next) => {
 
     const existingPassenger = trip.passengers.find(passenger => passenger.createdBy?._id.toString() === userId);
     if (existingPassenger) {
-        throw new BadRequestError('Ey! Ya tenes boleto para este viaje.')
+        throw new BadRequestError('Ey! Ya tenes boleto para este viaje')
     }
 
     const newPassenger = new Passenger({ createdBy: userId, isPaid: isPaid });
