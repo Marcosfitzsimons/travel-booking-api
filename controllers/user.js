@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { format, parse } from "date-fns";
-import { BadRequestError, NotFoundError } from '../errors/index.js'
+import { BadRequestError, NotFoundError, UnauthenticatedError } from '../errors/index.js'
 import User from "../models/User.js"
 import bcrypt from "bcrypt";
 
