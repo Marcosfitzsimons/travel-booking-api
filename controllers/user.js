@@ -122,19 +122,17 @@ export const handleChangePassword = async (req, res) => {
 
     const { password, cpassword } = req.body;
 
-    if (!password || !cpassword) throw new BadRequestError('Debes completar los datos antes de enviar')
+    if (!password || !cpassword) throw new BadRequestError('Debes completar los campos antes de enviar')
     if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden')
     if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres')
 
     const validUser = await User.findOne({ _id: id });
-    if (!validUser) throw new UnauthenticatedError('Usuario no existe.')
-
+    if (!validUser) throw new UnauthenticatedError('Usuario no existe')
 
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const hashc = bcrypt.hashSync(cpassword, salt);
 
-    const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { $set: { password: hash, cpassword: hashc } }, { new: true });
+    const setNewUserPass = await User.findByIdAndUpdate({ _id: id }, { $set: { password: hash } }, { new: true });
 
     setNewUserPass.save();
 
@@ -144,15 +142,15 @@ export const handleChangePassword = async (req, res) => {
 export const deleteUser = async (req, res) => {
 
     const user = await User.findByIdAndDelete(req.params.id)
-    if (!user) throw new NotFoundError('Usuario no existe.')
-    res.status(StatusCodes.OK).json('Usuario eliminado con éxito.')
+    if (!user) throw new NotFoundError('Usuario no existe')
+    res.status(StatusCodes.OK).json('Usuario eliminado con éxito')
 
 }
 
 export const getUser = async (req, res) => {
 
     const user = await User.findById(req.params.id).populate('myTrips');
-    if (!user) throw new NotFoundError('Usuario no existe.')
+    if (!user) throw new NotFoundError('Usuario no existe')
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
     if (req.user.isAdmin) {
@@ -204,7 +202,7 @@ export const getUser = async (req, res) => {
 
 export const getUserAddresses = async (req, res) => {
     const user = await User.findById(req.params.id)
-    if (!user) throw new NotFoundError('Usuario no existe.')
+    if (!user) throw new NotFoundError('Usuario no existe')
 
     res.status(StatusCodes.OK).json({
         userAddresses: {
@@ -216,7 +214,7 @@ export const getUserAddresses = async (req, res) => {
 
 export const getUserTrips = async (req, res) => {
     const user = await User.findById(req.params.id).populate('myTrips');
-    if (!user) throw new NotFoundError('Usuario no existe.')
+    if (!user) throw new NotFoundError('Usuario no existe')
 
     const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
     const userTrips = user.myTrips.map(trip => ({
@@ -240,6 +238,7 @@ export const getUserTrips = async (req, res) => {
 
 export const getUsers = async (req, res) => {
     const users = await User.find()
+    if (!users) throw new NotFoundError('Error al obtener usuarios')
 
     const filteredUsers = users
         .filter(user => !user.isAdmin)
