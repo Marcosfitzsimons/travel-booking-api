@@ -23,7 +23,6 @@ export const register = async (req, res, next) => {
         throw new BadRequestError('Email ya está en uso');
     }
 
-
     const usernameExists = await User.findOne({ usernameLowercase });
     if (usernameExists) {
         throw new BadRequestError('Nombre de usuario ya está en uso');
@@ -31,14 +30,16 @@ export const register = async (req, res, next) => {
 
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
-    const hashc = bcrypt.hashSync(cpassword, salt);
 
     const user = new User({
-        ...req.body,
+        fullName,
         username: usernameLowercase,
         email: emailLowercase,
         password: hash,
-        cpassword: hashc
+        addressCda,
+        addressCapital,
+        phone,
+        dni
     });
 
     const token = jwt.sign(
@@ -65,19 +66,19 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
     const { emailOrUsername, password: userReqPassword } = req.body
 
-    if (!emailOrUsername) throw new BadRequestError('Ingresa tu nombre de usuario o email.')
+    if (!emailOrUsername) throw new BadRequestError('Ingresa tu nombre de usuario o email')
 
     const emailOrUsernameLowercase = emailOrUsername.toLowerCase()
 
     let user = await User.findOne({ $or: [{ email: emailOrUsernameLowercase }, { username: emailOrUsernameLowercase }] });
 
-    if (!user) throw new UnauthenticatedError('Usuario no encontrado.')
+    if (!user) throw new UnauthenticatedError('Usuario no existe')
 
     if (user.status != "Active") throw new UnauthenticatedError('Cuenta pendiente. Por favor, verifique su email!')
 
     // bcrypt allow us to compare hash password with the password that is in the request.
     const isPasswordCorrect = await bcrypt.compare(userReqPassword, user.password)
-    if (!isPasswordCorrect) throw new BadRequestError('Contraseña incorrecta.')
+    if (!isPasswordCorrect) throw new BadRequestError('Contraseña incorrecta')
 
 
     const token = jwt.sign(
@@ -95,7 +96,7 @@ export const login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None'
+    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 20 * 24 * 60 * 60 * 1000 }); // s
 
     const { _id, status, isAdmin, image } = user._doc;
 
@@ -143,9 +144,8 @@ export const refreshToken = async (req, res, next) => {
     const refreshTokenValue = cookies.jwt;
 
     let user = await User.findOne({ refreshToken: refreshTokenValue });
-    if (!user) throw new UnauthenticatedError('Usuario no encontrado.')
-    console.log(refreshTokenValue)
-    console.log(user._id)
+    if (!user) throw new UnauthenticatedError('Usuario no encontrado')
+
 
     jwt.verify(
         refreshTokenValue,
@@ -249,9 +249,11 @@ export const forgotPassword = async (req, res) => {
 export const changePassword = async (req, res) => {
     const { id } = req.params;
 
-    const { password, token } = req.body;
-    if (!password) throw new BadRequestError('Contraseña nueva es requerida')
-    if (password.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres')
+    const { password, cpassword, token } = req.body;
+
+    if (!password || !cpassword) throw new BadRequestError('Debes completar los campos antes de enviar')
+    if (password !== cpassword) throw new BadRequestError('Contraseñas no coinciden')
+    if (password.length < 6 || cpassword.length < 6) throw new BadRequestError('Contraseña debe tener al menos 6 caracteres')
 
     if (!token) throw new BadRequestError('Token es requerido')
 
@@ -269,7 +271,7 @@ export const changePassword = async (req, res) => {
 
         res.status(StatusCodes.NO_CONTENT).send()
     } else {
-        throw new UnauthenticatedError('Usuario no existe.')
+        throw new UnauthenticatedError('Usuario no existe')
     }
 }
 
@@ -279,7 +281,7 @@ export const verifyUser = async (req, res) => {
         confirmationCode: req.params.confirmationCode,
     })
 
-    if (!user) throw new UnauthenticatedError('Usuario no encontrado.')
+    if (!user) throw new UnauthenticatedError('Usuario no existe')
 
     user.status = "Active";
     await user.save()
