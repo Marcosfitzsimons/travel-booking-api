@@ -32,13 +32,6 @@ const UserSchema = new mongoose.Schema({
         maxLength: 100,
         trim: true,
     },
-    cpassword: {
-        type: String,
-        required: [true, 'Por favor, confirma tu contraseña.'],
-        minLength: 6,
-        maxLength: 100,
-        trim: true,
-    },
     phone: {
         type: Number,
         required: [true, 'Por favor, ingresar número celular.'],
