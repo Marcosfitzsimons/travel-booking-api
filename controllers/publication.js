@@ -7,6 +7,9 @@ export const createPublication = async (req, res) => {
 
     if (!title, !subtitle) throw new BadRequestError("Tu publicación debe tener al menos título y subtítulo")
 
+    const publications = await Publication.find()
+    if (publications.length >= 3) throw new BadRequestError("El límite máximo de publicaciones permitidas es 3. Debes eliminar una de las existentes para crear una nueva publicación")
+
     const newPublication = new Publication({ ...req.body })
     const savedPublication = await newPublication.save()
 
