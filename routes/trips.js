@@ -1,5 +1,5 @@
 import express from "express";
-import { createTrip, deleteTrip, getIncomes, getMonthlyIncomes, getTrip, getTrips, getYearlyIncomes, updateTrip } from "../controllers/trip.js";
+import { createTrip, deleteTrip, getMonthlyIncomes, getTrip, getTrips, getYearlyIncomes, updateTrip } from "../controllers/trip.js";
 import { verifyAdmin, verifyUser } from '../middleware/verifyToken.js'
 
 const router = express.Router();
@@ -18,9 +18,6 @@ router.get("/:userId/:tripId", getTrip)
 
 // GET ALL
 router.get("/", getTrips)
-
-// GET INCOMES
-router.get("/incomes", verifyAdmin, getIncomes)
 
 router.get("/monthly-incomes/:year/:month", verifyAdmin, getMonthlyIncomes)
 router.get("/:year", verifyAdmin, getYearlyIncomes)
