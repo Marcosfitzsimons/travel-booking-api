@@ -95,22 +95,6 @@ export const getTrips = async (req, res) => {
 
 }
 
-export const getIncomes = async (req, res) => {
-    const trips = await Trip.find().sort({ date: 1 });
-    if (!trips) throw new NotFoundError('Error al obtener ganancias en viajes semanales')
-
-    const incomes = trips.map(trip => (
-        {
-            _id: trip._id,
-            date: trip.date,
-            incomes: (trip.price * trip.passengers.length),
-            special: false,
-        }
-    ))
-
-    res.status(StatusCodes.OK).json(incomes)
-}
-
 export const getMonthlyIncomes = async (req, res) => {
     const { year, month } = req.params;
     const startDate = new Date(year, month - 1, 1); // month is 0-indexed
@@ -155,7 +139,12 @@ export const getMonthlyIncomes = async (req, res) => {
         specialIncomes: 0
     }));
 
-    res.status(StatusCodes.OK).json([...incomes, ...specialIncomes]);
+    if (![...incomes, ...specialIncomes].length > 0) {
+        throw new NotFoundError('No se han encontrado ingresos');
+    } else {
+        res.status(StatusCodes.OK).json([...incomes, ...specialIncomes]);
+    }
+
 };
 
 export const getYearlyIncomes = async (req, res) => {
@@ -212,4 +201,3 @@ export const getYearlyIncomes = async (req, res) => {
 
     res.status(StatusCodes.OK).json(monthlyIncomesArray);
 };
-
