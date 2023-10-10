@@ -96,7 +96,7 @@ export const login = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 20 * 24 * 60 * 60 * 1000 }); // s
+    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 20 * 24 * 60 * 60 * 1000 }); // secure: true, sameSite: 'None'
 
     const { _id, status, isAdmin, image } = user._doc;
 
@@ -158,14 +158,27 @@ export const refreshToken = async (req, res, next) => {
                 process.env.JWT,
                 { expiresIn: process.env.JWT_LIFETIME }
             )
-            res.status(StatusCodes.OK).json({
-                user: {
-                    _id: user._id,
-                    status: user.status,
-                    image: user.image
-                },
-                token: accessToken
-            })
+
+            if (user.isAdmin) {
+                res.status(StatusCodes.OK).json({
+                    user: {
+                        _id: used._id,
+                        isAdmin: user.isAdmin,
+                        image: user.image
+                    },
+                    token: accessToken
+                })
+            } else {
+                res.status(StatusCodes.OK).json({
+                    user: {
+                        _id: user._id,
+                        status: user.status,
+                        image: user.image
+                    },
+                    token: accessToken
+                })
+            }
+
         }
     )
 }
