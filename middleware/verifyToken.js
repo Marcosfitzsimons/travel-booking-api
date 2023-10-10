@@ -14,7 +14,7 @@ export const verifyToken = async (req, res, next) => {
             process.env.JWT,
             async (err, decoded) => {
                 if (err) return res.sendStatus(403); //invalid token
-                req.user = await User.findById(decoded.id).select('-password -cpassword')
+                req.user = await User.findById(decoded.id).select('-password')
                 next();
             }
         );
