@@ -160,16 +160,16 @@ export const refreshToken = async (req, res, next) => {
             )
 
             if (user.isAdmin) {
-                res.status(StatusCodes.OK).json({
+                return res.status(StatusCodes.OK).json({
                     user: {
-                        _id: used._id,
+                        _id: user._id,
                         isAdmin: user.isAdmin,
                         image: user.image
                     },
                     token: accessToken
                 })
             } else {
-                res.status(StatusCodes.OK).json({
+                return res.status(StatusCodes.OK).json({
                     user: {
                         _id: user._id,
                         status: user.status,
@@ -178,7 +178,6 @@ export const refreshToken = async (req, res, next) => {
                     token: accessToken
                 })
             }
-
         }
     )
 }
