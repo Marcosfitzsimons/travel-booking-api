@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken'
-import { ForbiddenError, UnauthenticatedError } from '../errors/index.js'
 import User from '../models/User.js'
 
 export const verifyToken = async (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
 
-    if (!authHeader) throw new UnauthenticatedError('No token provided.')
+    if (!authHeader) return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'No token provided' });
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.split(' ')[1]
@@ -13,13 +12,13 @@ export const verifyToken = async (req, res, next) => {
             token,
             process.env.JWT,
             async (err, decoded) => {
-                if (err) return res.sendStatus(403); //invalid token
+                if (err) return res.status(StatusCodes.FORBIDDEN).json({ error: 'Invalid token provided' })
                 req.user = await User.findById(decoded.id).select('-password')
                 next();
             }
         );
     } else {
-        throw new ForbiddenError('Invalid token provided.')
+        return res.status(StatusCodes.FORBIDDEN).json({ error: 'Invalid token provided' })
     }
 
 }
@@ -31,11 +30,11 @@ export const verifyUser = (req, res, next) => {
             if (req.user.id === req.params.id || req.user.isAdmin) {
                 next();
             } else {
-                throw new UnauthenticatedError('No estas autorizado');
+                return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'You are not authorized' });
             }
         } else {
             // If the "id" parameter is not present, proceed without throwing an error
-            // Unauthenticated users can access the getPublications endpoint
+            // Unauthenticated users can access endpoints
             next();
         }
     });
@@ -46,7 +45,7 @@ export const verifyAdmin = (req, res, next) => {
         if (req.user.isAdmin) {
             next();
         } else {
-            throw new UnauthenticatedError('No estas autorizado, no sos admin.')
+            return res.status(StatusCodes.UNAUTHORIZED).json({ error: 'You are not authorized' });
         }
     });
 };
