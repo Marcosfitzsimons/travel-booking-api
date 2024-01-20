@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
+import { StatusCodes } from 'http-status-codes';
 
 export const verifyToken = async (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
