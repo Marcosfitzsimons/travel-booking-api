@@ -66,6 +66,22 @@ export const getSpecialTrips = async (req, res) => {
 
 }
 
+export const getSpecialTripsHistory = async (req, res) => {
+
+    const currentMonthStart = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), 1));
+    const currentDate = parse(format(new Date(), "dd/MM/yy"), "dd/MM/yy", new Date());
+
+    const trips = await SpecialTrip.find({
+        date: { $gte: currentMonthStart, $lt: currentDate },
+    }).sort('-date');
+
+    if (!trips || trips.length === 0) {
+        throw new NotFoundError('Error al encontrar historial de viajes particulares');
+    }
+
+    res.status(StatusCodes.OK).json(trips);
+}
+
 export const getSpecialIncomes = async (req, res) => {
     const trips = await SpecialTrip.find().sort({ date: 1 });
     if (!trips) throw new NotFoundError('Error al obtener ganancias en viajes particulares')
