@@ -20,7 +20,7 @@ router.get("/:id", verifyAdmin, getSpecialTrip)
 router.get("/", verifyAdmin, getSpecialTrips)
 
 // GET HISTORY
-router.get("/", verifyAdmin, getSpecialTripsHistory)
+router.get("/history", verifyAdmin, getSpecialTripsHistory)
 
 // GET INCOMES
 router.get("/incomes", verifyAdmin, getSpecialIncomes)
