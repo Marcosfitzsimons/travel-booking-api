@@ -20,7 +20,7 @@ router.get("/:userId/:tripId", getTrip)
 router.get("/", getTrips)
 
 // TRIPS HISTORY
-router.get("/history", getTripsHistory)
+router.get("/history", verifyAdmin, getTripsHistory)
 
 // INCOMES
 router.get("/monthly-incomes/:year/:month", verifyAdmin, getMonthlyIncomes)

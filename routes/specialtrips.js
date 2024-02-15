@@ -13,14 +13,14 @@ router.put("/:id", verifyAdmin, updateSpecialTrip)
 // DELETE
 router.delete("/:id", verifyAdmin, deleteSpecialTrip)
 
+// GET HISTORY
+router.get("/history", verifyAdmin, getSpecialTripsHistory)
+
 // GET
 router.get("/:id", verifyAdmin, getSpecialTrip)
 
 // GET ALL
 router.get("/", verifyAdmin, getSpecialTrips)
-
-// GET HISTORY
-router.get("/history", verifyAdmin, getSpecialTripsHistory)
 
 // GET INCOMES
 router.get("/incomes", verifyAdmin, getSpecialIncomes)
